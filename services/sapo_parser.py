@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 from models.movie import Movie
+from configs.config import CONFIG
 
-ns = {'sapo': 'http://services.sapo.pt/Metadata/EPG'}
+ns = {'sapo': CONFIG.NS}
 
 def parse(response):
     root = ET.fromstring(response.encode('utf-8'))
@@ -17,6 +18,6 @@ def parse(response):
         movie.description_sapo = program.find('sapo:Description', ns).text
         movie.duration = program.find('sapo:Duration', ns).text
 
-        print movie.id_sapo
-
+        print movie
+        
     return 1, 2
