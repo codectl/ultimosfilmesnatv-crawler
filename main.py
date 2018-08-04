@@ -23,3 +23,6 @@ if __name__ == '__main__':
 
     # Parsing performed sapo request
     movies, schedules = epgparser.parse(response)
+
+    for movie in movies:
+        print movie

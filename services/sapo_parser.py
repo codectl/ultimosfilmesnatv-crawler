@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 from models.movie import Movie
+from models.schedule import Schedule
 from configs.config import CONFIG
 import re
 
@@ -8,6 +9,9 @@ ns = {'sapo': CONFIG.NS}
 
 def parse(response):
     root = ET.fromstring(response.encode('utf-8'))
+
+    movies = []
+    schedules = []
 
     for program in root \
             .find('sapo:GetChannelByDateIntervalResult', ns) \
@@ -24,14 +28,19 @@ def parse(response):
             movie.description_sapo = program.find('sapo:Description', ns).text
             movie.duration = program.find('sapo:Duration', ns).text
 
-            print movie
+            schedule = Schedule()
 
-    return 1, 2
+            movies.append(movie)
+            schedules.append(schedule)
+
+    return movies, schedules
+
 
 # Validating whether it is valid movie
 def _validate_movie(title_sapo):
     return _validate_movie_title_sapo(title_sapo)
 
 
+# Validating if it is a series
 def _validate_movie_title_sapo(title_sapo):
     return re.match(r'(.*) Ep\.\s\d+', title_sapo, flags=0) is None
