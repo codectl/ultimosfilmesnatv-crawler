@@ -8,7 +8,7 @@ ns = {'sapo': CONFIG.NS}
 
 
 def parse(response):
-    root = ET.fromstring(response.encode('utf-8'))
+    root = ET.fromstring(response)
 
     movies = []
     schedules = []
@@ -26,9 +26,14 @@ def parse(response):
             movie.id_sapo = id_sapo
             movie.title_sapo = title_sapo
             movie.description_sapo = program.find('sapo:Description', ns).text
-            movie.duration = program.find('sapo:Duration', ns).text
 
             schedule = Schedule()
+            schedule.id_sapo = id_sapo
+            schedule.channel = root \
+                .find('sapo:GetChannelByDateIntervalResult', ns) \
+                .find('sapo:Sigla', ns).text
+            schedule.start_datetime = program.find('sapo:StartTime', ns).text
+            schedule.end_datetime = program.find('sapo:EndTime', ns).text
 
             movies.append(movie)
             schedules.append(schedule)

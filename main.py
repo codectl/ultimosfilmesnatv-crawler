@@ -1,6 +1,7 @@
 import datetime
-import requests
+import urllib
 import services.sapo_parser as epgparser
+import services.movie_service as ms
 from configs.config import CONFIG
 
 
@@ -8,13 +9,16 @@ def request_daily_epg(channel):
     start = datetime.datetime.now()
     end = start + datetime.timedelta(days=1)
 
-    today_start = start.strftime(u'%Y-%m-%d') + u'+00:00:00'
-    today_end = end.strftime(u'%Y-%m-%d') + u'+00:00:00'
+    today_start = start.strftime(u'%Y-%m-%d') + u' 00:00:00'
+    today_end = end.strftime(u'%Y-%m-%d') + u' 00:00:00'
 
-    url = CONFIG.SAPO_ENDPOINT.format(channel, today_start, today_end)
-    response = requests.get(url)
-
-    return response.text
+    params = [
+        ('channelSigla', channel),
+        ('startDate', today_start),
+        ('endDate', today_end)
+    ]
+    url = CONFIG.SAPO_ENDPOINT + '?' + urllib.urlencode(params)
+    return urllib.urlopen(url).read()
 
 
 if __name__ == '__main__':
@@ -25,4 +29,11 @@ if __name__ == '__main__':
     movies, schedules = epgparser.parse(response)
 
     for movie in movies:
-        print movie
+        candidates = ms.get_candidates(movie)
+
+        if not candidates:
+            raise Exception('No candidates found')
+        elif len(candidates) == 1:
+            ms.save_movie(movie, candidates.pop())
+        else:
+            ms.mark_movie_as_unresolved(movie, candidates)
