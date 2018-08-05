@@ -31,9 +31,18 @@ if __name__ == '__main__':
     for movie in movies:
         candidates = ms.get_candidates(movie)
 
+        print movie.sapo_title
+        print movie.sapo_description
+
+        for c in candidates:
+            print c.imdb_title
+            print c.imdb_description
+
         if not candidates:
-            raise Exception('No candidates found')
+            raise Exception('No candidates found for movie {}'.format(movie.sapo_title.encode('utf8')))
         elif len(candidates) == 1:
-            ms.save_movie(movie, candidates.pop())
+            ms.save_movie(movie, candidates.pop().imdb_id)
         else:
             ms.mark_movie_as_unresolved(movie, candidates)
+
+        break

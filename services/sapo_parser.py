@@ -18,17 +18,17 @@ def parse(response):
             .find('sapo:Programs', ns) \
             .findall('sapo:Program', ns):
 
-        id_sapo = program.find('sapo:Id', ns).text
-        title_sapo = program.find('sapo:Title', ns).text
+        sapo_id = program.find('sapo:Id', ns).text
+        sapo_title = program.find('sapo:Title', ns).text
 
-        if _validate_movie(title_sapo):
+        if _validate_movie(sapo_title):
             movie = Movie()
-            movie.id_sapo = id_sapo
-            movie.title_sapo = title_sapo
-            movie.description_sapo = program.find('sapo:Description', ns).text
+            movie.sapo_id = sapo_id
+            movie.sapo_title = sapo_title
+            movie.sapo_description = program.find('sapo:Description', ns).text
 
             schedule = Schedule()
-            schedule.id_sapo = id_sapo
+            schedule.sapo_id = sapo_id
             schedule.channel = root \
                 .find('sapo:GetChannelByDateIntervalResult', ns) \
                 .find('sapo:Sigla', ns).text
@@ -42,10 +42,10 @@ def parse(response):
 
 
 # Validating whether it is valid movie
-def _validate_movie(title_sapo):
-    return _validate_movie_title_sapo(title_sapo)
+def _validate_movie(sapo_title):
+    return _validate_movie_title_sapo(sapo_title)
 
 
 # Validating if it is a series
-def _validate_movie_title_sapo(title_sapo):
-    return re.match(r'(.*) Ep\.\s\d+', title_sapo, flags=0) is None
+def _validate_movie_title_sapo(sapo_title):
+    return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None

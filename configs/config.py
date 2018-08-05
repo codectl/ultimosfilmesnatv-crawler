@@ -17,9 +17,8 @@ def load_properties():
     properties.SAPO_ENDPOINT = config.get(u'sapo', u'endpoint')
     properties.NS = config.get(u'sapo', u'ns')
 
+    properties.OMDB_ENDPOINT = config.get(u'omdb', u'endpoint')
     properties.OMDB_KEY = config.get(u'omdb', u'key')
-    properties.OMDB_BY_ID = config.get(u'omdb', u'by_id')
-    properties.OMDB_BY_TITLE = config.get(u'omdb', u'by_title')
 
     properties.GOOGLE_ENDPOINT = config.get(u'google', u'endpoint')
     properties.GOOGLE_KEY = config.get(u'google', u'key')
