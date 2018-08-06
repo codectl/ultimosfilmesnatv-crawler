@@ -1,6 +1,6 @@
 import json
 import urllib
-from configs.config import CONFIG
+from configs.config import CONFIG, db
 from models.movie import Movie
 
 
@@ -16,12 +16,11 @@ def get_candidates(movie):
 
     candidates = []
 
-    print url
-
     for item in response['items']:
         if 'pagemap' in item and 'movie' in item['pagemap'] is not None:
             for movie_entry in item['pagemap']['movie']:
                 if 'description' in movie_entry and \
+                        'imdb' in item['link'] and \
                         not _exists_candidate(candidates, movie_entry['name']):
                     candidate = Movie()
                     candidate.imdb_id = _extract_imdb_id(item['link'])
@@ -33,17 +32,41 @@ def get_candidates(movie):
     return candidates
 
 
-# Save movie into database after all relevent info is filled in
+# Save movie into database after all relevant info is filled in
 # TODO
-def save_movie(movie, imdb_id):
+def save_movie(movie, candidate):
     params = {
-        'key': CONFIG.OMDB_KEY,
-        'i': imdb_id
+        'apikey': CONFIG.OMDB_KEY,
+        'i': candidate.imdb_id
     }
     url = CONFIG.OMDB_ENDPOINT + '?' + urllib.urlencode(params)
+    print url
     response = json.loads(urllib.urlopen(url).read())
 
-    print response
+    movie.imdb_id = candidate.imdb_id
+    movie.imdb_title = candidate.imdb_title
+    movie.imdb_description = candidate.imdb_description
+    movie.title = response['Title']
+    movie.year = response['Year']
+    movie.rated = response['Rated']
+    movie.released = response['Released']
+    movie.duration = response['Runtime']
+    movie.genre = response['Genre']
+    movie.director = response['Director']
+    movie.writer = response['Writer']
+    movie.actors = response['Actors']
+    movie.plot = response['Plot']
+    movie.language = response['Language']
+    movie.country = response['Country']
+    movie.awards = response['Awards']
+    movie.poster = response['Poster']
+    movie.rating_imdb = response['imdbRating']
+    movie.rating_rotten_tomatoes = next(rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes')['Value']
+    movie.rating_metacritic = response['Metascore']
+    movie.website = response['Website']
+    movie.iscomplete = True
+
+    db.movie.insert(movie) # Store movie in database
 
 
 # Adding movie to the unresolved movies in the database

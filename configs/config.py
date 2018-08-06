@@ -1,4 +1,5 @@
 from ConfigParser import ConfigParser
+import pymongo
 
 
 class Properties:
@@ -28,3 +29,11 @@ def load_properties():
 
 
 CONFIG = load_properties()
+
+
+def load_database():
+    connection = pymongo.Connection(CONFIG.DATABASE_ENDPOINT, safe=True)
+    return connection.dev
+
+
+db = load_database()
