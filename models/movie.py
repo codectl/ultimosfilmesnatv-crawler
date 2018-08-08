@@ -28,7 +28,7 @@ class Movie:
         self.rating_rotten_tomatoes = ''
         self.rating_metacritic = ''
         self.website = ''
-        self.iscomplete = False
+        self.isresolved = False
 
     def __str__(self):
         return \
@@ -44,7 +44,7 @@ class Movie:
             'Plot: ' + self.plot.encode('utf8') + '\n' + \
             'Genre: ' + self.genre.encode('utf8') + '\n' + \
             'Actors: ' + self.actors.encode('utf8') + '\n' + \
-            'IsComplete?: ' + str(self.iscomplete) + '\n'
+            'IsResolved?: ' + str(self.isresolved) + '\n'
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

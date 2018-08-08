@@ -18,6 +18,7 @@ def request_daily_epg(channel):
         ('endDate', today_end)
     ]
     url = CONFIG.SAPO_ENDPOINT + '?' + urllib.urlencode(params)
+    print url
     return urllib.urlopen(url).read()
 
 
@@ -31,9 +32,6 @@ if __name__ == '__main__':
     for movie in movies:
         candidates = ms.get_candidates(movie)
 
-        if movie.sapo_id != '11345030':
-            continue
-
         print '\n ****'
         print movie.sapo_title
         print movie.sapo_description
@@ -46,6 +44,6 @@ if __name__ == '__main__':
         if not candidates:
             raise Exception('No candidates found for movie {}'.format(movie.sapo_title.encode('utf8')))
         elif len(candidates) == 1:
-            ms.save_movie(movie, candidates.pop())
+            ms.save_movie(ms.complete_movie(movie, candidates.pop()))
         else:
             ms.mark_movie_as_unresolved(movie, candidates)

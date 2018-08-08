@@ -2,6 +2,7 @@ import json
 import urllib
 from configs.config import CONFIG, db
 from models.movie import Movie
+import uuid
 
 
 def get_candidates(movie):
@@ -13,6 +14,7 @@ def get_candidates(movie):
     }
     url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.urlencode(params)
     response = json.loads(urllib.urlopen(url).read())
+    print url
 
     candidates = []
 
@@ -32,9 +34,8 @@ def get_candidates(movie):
     return candidates
 
 
-# Save movie into database after all relevant info is filled in
-# TODO
-def save_movie(movie, candidate):
+#  Fill all relevant info of a movie
+def complete_movie(movie, candidate):
     params = {
         'apikey': CONFIG.OMDB_KEY,
         'i': candidate.imdb_id
@@ -61,18 +62,36 @@ def save_movie(movie, candidate):
     movie.awards = response['Awards']
     movie.poster = response['Poster']
     movie.rating_imdb = response['imdbRating']
-    movie.rating_rotten_tomatoes = next(rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes')['Value']
+    movie.rating_rotten_tomatoes = \
+        next(rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes')['Value']
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
-    movie.iscomplete = True
+    movie.isresolved = True
 
-    db.movie.insert(movie) # Store movie in database
+    return movie
+
+
+# Save movie into database
+def save_movie(movie):
+    db.movie.insert(json.loads(movie.to_json()))  # Store movie in database
+
+
+# Check whether a movie already exists in database given its ID
+def exists_movie(sapo_id):
+    return db.movie.find({'sapo_id': sapo_id}).count() != 0
 
 
 # Adding movie to the unresolved movies in the database
-# TODO
-def mark_movie_as_unresolved(movie, additional_info):
-    db = CONFIG.DATABASE_ENDPOINT
+def mark_movie_as_unresolved(movie, candidates):
+    if not exists_movie(movie.sapo_id):
+        for candidate in candidates:
+            candidate.sapo_id = movie.sapo_id
+            candidate.sapo_title = movie.sapo_title
+            candidate.sapo_description = movie.sapo_description
+
+            db.unresolved.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
+
+        save_movie(movie)
 
 
 # Checking whether certain movie is already present in the candidates list

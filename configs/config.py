@@ -1,5 +1,5 @@
 from ConfigParser import ConfigParser
-import pymongo
+from pymongo import MongoClient
 
 
 class Properties:
@@ -32,7 +32,7 @@ CONFIG = load_properties()
 
 
 def load_database():
-    connection = pymongo.Connection(CONFIG.DATABASE_ENDPOINT, safe=True)
+    connection = MongoClient(CONFIG.DATABASE_ENDPOINT)
     return connection.dev
 
 
