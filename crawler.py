@@ -51,8 +51,8 @@ if __name__ == '__main__':
                 unsaved_movie = ms.complete_movie(movie, candidates.pop())
                 ms.save_movie(unsaved_movie)
             else:
-                unsaved_movie = ms.mark_movie_as_unresolved(movie, candidates)
-                ms.save_movie(unsaved_movie)
+                ms.save_candidates(movie, candidates)
+                ms.save_movie(movie)
 
         else:
             print("Movie already exists")

@@ -96,15 +96,23 @@ def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
 
 
 # Adding movie to the unresolved movies in the database
-def mark_movie_as_unresolved(movie, candidates):
+def save_candidates(movie, candidates):
     for candidate in candidates:
         candidate.sapo_id = movie.sapo_id
         candidate.sapo_title = movie.sapo_title
         candidate.sapo_description = movie.sapo_description
 
-        db.unresolved.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
+        db.candidate.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
 
-    return movie
+
+# Getting list of unresolved movies
+def get_all_unresolved_movies():
+    return db.movie.find({'isresolved': False})
+
+
+# Getting list of unresolved movies
+def get_all_candidates(sapo_id):
+    return db.candidate.find({'sapo_id': sapo_id})
 
 
 # Checking whether certain movie is already present in the candidates list

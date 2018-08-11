@@ -3,32 +3,36 @@ import json
 
 class Movie:
 
-    def __init__(self):
-        self.sapo_id = ''
-        self.sapo_title = ''
-        self.sapo_description = ''
-        self.imdb_id = ''
-        self.imdb_title = ''
-        self.imdb_description = ''
-        self.title = ''
-        self.year = ''
-        self.rated = ''
-        self.released = ''
-        self.duration = ''
-        self.genre = ''
-        self.director = ''
-        self.writer = ''
-        self.actors = ''
-        self.plot = ''
-        self.language = ''
-        self.country = ''
-        self.awards = ''
-        self.poster = ''
-        self.rating_imdb = ''
-        self.rating_rotten_tomatoes = ''
-        self.rating_metacritic = ''
-        self.website = ''
-        self.isresolved = False
+    def __init__(self, json_obj=None):
+        if json_obj == None:
+            self.sapo_id = ''
+            self.sapo_title = ''
+            self.sapo_description = ''
+            self.imdb_id = ''
+            self.imdb_title = ''
+            self.imdb_description = ''
+            self.title = ''
+            self.year = ''
+            self.rated = ''
+            self.released = ''
+            self.duration = ''
+            self.genre = ''
+            self.director = ''
+            self.writer = ''
+            self.actors = ''
+            self.plot = ''
+            self.language = ''
+            self.country = ''
+            self.awards = ''
+            self.poster = ''
+            self.rating_imdb = ''
+            self.rating_rotten_tomatoes = ''
+            self.rating_metacritic = ''
+            self.website = ''
+            self.isresolved = False
+        else:
+            for key, value in json_obj.item():
+                self.__init__[key] = value
 
     def __str__(self):
         return \
