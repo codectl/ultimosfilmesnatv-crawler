@@ -86,6 +86,15 @@ def exists_movie_in_db(sapo_id):
     return db.movie.find({'sapo_id': sapo_id}).count() != 0
 
 
+# Check whether a schedule already exists in database
+def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
+    return db.schedule.find({ \
+        'sapo_id': sapo_id, \
+        'sapo_channel': sapo_channel, \
+        'sapo_start_datetime': sapo_start_datetime \
+        }).count() != 0
+
+
 # Adding movie to the unresolved movies in the database
 def mark_movie_as_unresolved(movie, candidates):
     for candidate in candidates:

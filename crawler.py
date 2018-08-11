@@ -54,6 +54,10 @@ if __name__ == '__main__':
                 unsaved_movie = ms.mark_movie_as_unresolved(movie, candidates)
                 ms.save_movie(unsaved_movie)
 
+        else:
+            print("Movie already exists")
+
     # Persist each schedule
     for schedule in schedules:
-        ms.save_schedule(schedule)
+        if not ms.exists_schedule_in_db(schedule.sapo_id, schedule.sapo_channel, schedule.sapo_start_datetime):
+            ms.save_schedule(schedule)
