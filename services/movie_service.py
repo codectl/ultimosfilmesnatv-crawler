@@ -1,20 +1,20 @@
 import json
-import urllib
+import urllib, urllib.request
 from configs.config import CONFIG, db
 from models.movie import Movie
 import uuid
 
 
 def get_candidates(movie):
-    query = movie.sapo_title.encode('utf8') + ' imdb'
+    query = movie.sapo_title + ' imdb'
     params = {
         'key': CONFIG.GOOGLE_KEY,
         'cx': CONFIG.GOOGLE_CX,
         'q': query
     }
-    url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.urlencode(params)
-    response = json.loads(urllib.urlopen(url).read())
-    print url
+    url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.parse.urlencode(params)
+    response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+    print(url)
 
     candidates = []
 
@@ -40,9 +40,9 @@ def complete_movie(movie, candidate):
         'apikey': CONFIG.OMDB_KEY,
         'i': candidate.imdb_id
     }
-    url = CONFIG.OMDB_ENDPOINT + '?' + urllib.urlencode(params)
-    print url
-    response = json.loads(urllib.urlopen(url).read())
+    url = CONFIG.OMDB_ENDPOINT + '?' + urllib.parse.urlencode(params)
+    print(url)
+    response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 
     movie.imdb_id = candidate.imdb_id
     movie.imdb_title = candidate.imdb_title
@@ -73,25 +73,29 @@ def complete_movie(movie, candidate):
 
 # Save movie into database
 def save_movie(movie):
-    db.movie.insert(json.loads(movie.to_json()))  # Store movie in database
+    db.movie.insert(json.loads(movie.to_json()))
+
+
+# Save schedule into database
+def save_schedule(schedule):
+    db.schedule.insert(json.loads(schedule.to_json()))
 
 
 # Check whether a movie already exists in database given its ID
-def exists_movie(sapo_id):
+def exists_movie_in_db(sapo_id):
     return db.movie.find({'sapo_id': sapo_id}).count() != 0
 
 
 # Adding movie to the unresolved movies in the database
 def mark_movie_as_unresolved(movie, candidates):
-    if not exists_movie(movie.sapo_id):
-        for candidate in candidates:
-            candidate.sapo_id = movie.sapo_id
-            candidate.sapo_title = movie.sapo_title
-            candidate.sapo_description = movie.sapo_description
+    for candidate in candidates:
+        candidate.sapo_id = movie.sapo_id
+        candidate.sapo_title = movie.sapo_title
+        candidate.sapo_description = movie.sapo_description
 
-            db.unresolved.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
+        db.unresolved.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
 
-        save_movie(movie)
+    return movie
 
 
 # Checking whether certain movie is already present in the candidates list
