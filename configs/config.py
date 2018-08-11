@@ -1,4 +1,4 @@
-from ConfigParser import ConfigParser
+import configparser
 from pymongo import MongoClient
 
 
@@ -9,7 +9,7 @@ class Properties:
 
 def load_properties():
     # Read configuration properties
-    config = ConfigParser()
+    config = configparser.ConfigParser()
     config.read(u'configs/properties.ini')
 
     properties = Properties()
