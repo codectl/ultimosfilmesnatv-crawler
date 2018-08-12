@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 ms.save_movie(movie)
 
         else:
-            print("Movie already exists")
+            print("Skipping, movie already exists")
 
     # Persist each schedule
     for schedule in schedules:
