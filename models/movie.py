@@ -31,8 +31,8 @@ class Movie:
             self.website = ''
             self.isresolved = False
         else:
-            for key, value in json_obj.item():
-                self.__init__[key] = value
+            for key, value in json_obj.items():
+                self.__dict__[key] = value
 
     def __str__(self):
         return \
