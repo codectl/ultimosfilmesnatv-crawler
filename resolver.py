@@ -2,25 +2,35 @@ import services.movie_service as ms
 from bson.json_util import dumps
 from models.movie import Movie
 import json
+import sys
 
 
 if __name__ == '__main__':
-    unresolved_movies_json = ms.get_all_unresolved_movies()
+    unresolved_movies_json = json.loads(dumps(ms.get_all_unresolved_movies()))
 
     # Solving each unresolved movie
-    for unresolved_movie_json in json.loads(dumps(unresolved_movies_json)):
+    for unresolved_movie_json in unresolved_movies_json:
         unresolved_movie = Movie(unresolved_movie_json) # Getting object from json
-
-        candidates_json = ms.get_all_candidates(unresolved_movie.sapo_id)
 
         print('\n')
         print('***')
         print('Movie sapo title: {}'.format(unresolved_movie.sapo_title))
         print('Movie sapo description: {}'.format(unresolved_movie.sapo_description))
+        print('* Choose one of the following candidates *')
 
         # Electing the right candidate
-        for index, candidate_json in enumerate(json.loads(dumps(candidates_json)), start=1):
+        candidates_json = json.loads(dumps(ms.get_all_candidates(unresolved_movie.sapo_id)))
+        candidates = []
+
+        for index, candidate_json in enumerate(candidates_json, start=1):
             candidate = Movie(candidate_json) # Getting object from json
+            candidates.append(candidate)
 
             print('[{}] Title: {}'.format(index, candidate.imdb_title))
+            print('    Year: {}'.format(candidate.year))
             print('    Description: {}'.format(candidate.imdb_description))
+            print('Chosen option: ')
+
+        option = int(sys.stdin.readline()) # reading option from stdin
+        ms.update_movie(unresolved_movie.sapo_id, candidates[option-1]) # Updating movie with the new content
+        ms.delete_candidates(unresolved_movie.sapo_id) # Deleting all previous candidates

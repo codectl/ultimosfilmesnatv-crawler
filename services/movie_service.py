@@ -76,6 +76,11 @@ def save_movie(movie):
     db.movie.insert(json.loads(movie.to_json()))
 
 
+# Update movie in the databse given its ID and the updated content
+def update_movie(sapo_id, update):
+    db.schedule.update_one({'sapo_id': sapo_id}, json.loads(update.to_json()))
+
+
 # Save schedule into database
 def save_schedule(schedule):
     db.schedule.insert(json.loads(schedule.to_json()))
@@ -95,7 +100,7 @@ def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
         }).count() != 0
 
 
-# Adding movie to the unresolved movies in the database
+# Add movie to the unresolved movies in the database
 def save_candidates(movie, candidates):
     for candidate in candidates:
         candidate.sapo_id = movie.sapo_id
@@ -105,7 +110,12 @@ def save_candidates(movie, candidates):
         db.candidate.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
 
 
-# Getting list of unresolved movies
+# Delete candidate movies
+def delete_candidates(sapo_id):
+    db.candidate.delete_many({'sapo_id': sapo_id})
+
+
+# Get list of unresolved movies
 def get_all_unresolved_movies():
     return db.movie.find({'isresolved': False})
 
