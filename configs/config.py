@@ -10,20 +10,22 @@ class Properties:
 def load_properties():
     # Read configuration properties
     config = configparser.ConfigParser()
-    config.read(u'configs/properties.ini')
+    config.read('configs/properties.ini')
 
     properties = Properties()
-    properties.DATABASE_ENDPOINT = config.get(u'database', u'endpoint')
+    properties.CHANNELS = config.get('general', 'channels')
 
-    properties.SAPO_ENDPOINT = config.get(u'sapo', u'endpoint')
-    properties.NS = config.get(u'sapo', u'ns')
+    properties.DATABASE_ENDPOINT = config.get('database', 'endpoint')
 
-    properties.OMDB_ENDPOINT = config.get(u'omdb', u'endpoint')
-    properties.OMDB_KEY = config.get(u'omdb', u'key')
+    properties.SAPO_ENDPOINT = config.get('sapo', 'endpoint')
+    properties.SAPO_NS = config.get('sapo', 'ns')
 
-    properties.GOOGLE_ENDPOINT = config.get(u'google', u'endpoint')
-    properties.GOOGLE_KEY = config.get(u'google', u'key')
-    properties.GOOGLE_CX = config.get(u'google', u'cx')
+    properties.OMDB_ENDPOINT = config.get('omdb', 'endpoint')
+    properties.OMDB_KEY = config.get('omdb', 'key')
+
+    properties.GOOGLE_ENDPOINT = config.get('google', 'endpoint')
+    properties.GOOGLE_KEY = config.get('google', 'key')
+    properties.GOOGLE_CX = config.get('google', 'cx')
 
     return properties
 
