@@ -25,9 +25,15 @@ def get_candidates(movie):
                         'imdb' in item['link'] and \
                         not _exists_candidate(candidates, movie_entry['name']):
                     candidate = Movie()
+                    candidate.sapo_id = movie.sapo_id
+                    candidate.sapo_title = movie.sapo_title
+                    candidate.sapo_description = movie.sapo_description
                     candidate.imdb_id = _extract_imdb_id(item['link'])
                     candidate.imdb_title = movie_entry['name']
                     candidate.imdb_description = movie_entry['description']
+                    complete_movie_with_omdb(candidate) # Adding further attributes to the movie object
+
+                    print(candidate)
 
                     candidates.append(candidate)
 
@@ -35,18 +41,15 @@ def get_candidates(movie):
 
 
 #  Fill all relevant info of a movie
-def complete_movie(movie, candidate):
+def complete_movie_with_omdb(movie):
     params = {
         'apikey': CONFIG.OMDB_KEY,
-        'i': candidate.imdb_id
+        'i': movie.imdb_id
     }
     url = CONFIG.OMDB_ENDPOINT + '?' + urllib.parse.urlencode(params)
     print(url)
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 
-    movie.imdb_id = candidate.imdb_id
-    movie.imdb_title = candidate.imdb_title
-    movie.imdb_description = candidate.imdb_description
     movie.title = response['Title']
     movie.year = response['Year']
     movie.rated = response['Rated']
@@ -67,8 +70,6 @@ def complete_movie(movie, candidate):
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
     movie.isresolved = True
-
-    return movie
 
 
 # Save movie into database
@@ -101,12 +102,8 @@ def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
 
 
 # Add movie to the unresolved movies in the database
-def save_candidates(movie, candidates):
+def save_candidates(candidates):
     for candidate in candidates:
-        candidate.sapo_id = movie.sapo_id
-        candidate.sapo_title = movie.sapo_title
-        candidate.sapo_description = movie.sapo_description
-
         db.candidate.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
 
 

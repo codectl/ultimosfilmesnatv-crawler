@@ -3,8 +3,10 @@ import urllib, urllib.request
 import services.sapo_parser as epgparser
 import services.movie_service as ms
 from configs.config import CONFIG
+import json
 
 
+# Performing request to get daily EPG
 def request_daily_epg(channel):
     start = datetime.datetime.now()
     end = start + datetime.timedelta(days=1)
@@ -23,41 +25,37 @@ def request_daily_epg(channel):
 
 
 if __name__ == '__main__':
-    # Getting daily epg for all channels
-    response = request_daily_epg('AXN')
+    # Going through all available channels
+    print(CONFIG.CHANNELS)
+    for channel in json.loads(CONFIG.CHANNELS):
 
-    # Parsing performed sapo request
-    movies, schedules = epgparser.parse(response)
+        print(channel)
 
-    # Persist each movie
-    for movie in movies:
+        # Getting daily epg for all channels
+        response = request_daily_epg(channel)
 
-        if not ms.exists_movie_in_db(movie.sapo_id):
+        # Parsing performed sapo request
+        movies, schedules = epgparser.parse(response)
 
-            candidates = ms.get_candidates(movie)
+        # Persist each movie
+        for movie in movies:
 
-            print('\n ****')
-            print(movie.sapo_title)
-            print(movie.sapo_description)
+            if not ms.exists_movie_in_db(movie.sapo_id):
 
-            print(candidates)
-            for c in candidates:
-                print (c.imdb_title)
-                print (c.imdb_description)
+                candidates = ms.get_candidates(movie)
 
-            if not candidates:
-                raise Exception('No candidates found for movie {}'.format(movie.sapo_title))
-            elif len(candidates) == 1:
-                unsaved_movie = ms.complete_movie(movie, candidates.pop())
-                ms.save_movie(unsaved_movie)
+                if not candidates:
+                    raise Exception('No candidates found for movie {}'.format(movie.sapo_title))
+                elif len(candidates) == 1:
+                    ms.save_movie(candidates.pop())
+                else:
+                    ms.save_candidates(candidates)
+                    ms.save_movie(movie)
+
             else:
-                ms.save_candidates(movie, candidates)
-                ms.save_movie(movie)
+                print("Skipping, movie already exists")
 
-        else:
-            print("Skipping, movie already exists")
-
-    # Persist each schedule
-    for schedule in schedules:
-        if not ms.exists_schedule_in_db(schedule.sapo_id, schedule.sapo_channel, schedule.sapo_start_datetime):
-            ms.save_schedule(schedule)
+        # Persist each schedule
+        for schedule in schedules:
+            if not ms.exists_schedule_in_db(schedule.sapo_id, schedule.sapo_channel, schedule.sapo_start_datetime):
+                ms.save_schedule(schedule)

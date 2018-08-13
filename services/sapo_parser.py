@@ -4,7 +4,7 @@ from models.schedule import Schedule
 from configs.config import CONFIG
 import re
 
-ns = {'sapo': CONFIG.NS}
+ns = {'sapo': CONFIG.SAPO_NS}
 
 
 def parse(response):

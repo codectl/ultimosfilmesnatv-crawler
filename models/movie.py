@@ -37,17 +37,17 @@ class Movie:
     def __str__(self):
         return \
             '\n' + \
-            '### ' + self.sapo_id.encode('utf8') + ' ###\n' + \
-            'Sapo title: ' + self.sapo_title.encode('utf8') + '\n' + \
-            'Sapo description: ' + self.sapo_description.encode('utf8') + '\n' + \
-            'Imdb id: ' + self.imdb_id.encode('utf8') + '\n' + \
-            'Imdb title: ' + self.imdb_title.encode('utf8') + '\n' + \
-            'Imdb description: ' + self.imdb_description.encode('utf8') + '\n' + \
-            'Title: ' + self.title.encode('utf8') + '\n' + \
-            'Year: ' + self.year.encode('utf8') + '\n' + \
-            'Plot: ' + self.plot.encode('utf8') + '\n' + \
-            'Genre: ' + self.genre.encode('utf8') + '\n' + \
-            'Actors: ' + self.actors.encode('utf8') + '\n' + \
+            '### ' + self.sapo_id + ' ###\n' + \
+            'Sapo title: ' + self.sapo_title + '\n' + \
+            'Sapo description: ' + self.sapo_description + '\n' + \
+            'Imdb id: ' + self.imdb_id + '\n' + \
+            'Imdb title: ' + self.imdb_title + '\n' + \
+            'Imdb description: ' + self.imdb_description + '\n' + \
+            'Title: ' + self.title + '\n' + \
+            'Year: ' + self.year + '\n' + \
+            'Plot: ' + self.plot + '\n' + \
+            'Genre: ' + self.genre + '\n' + \
+            'Actors: ' + self.actors + '\n' + \
             'IsResolved?: ' + str(self.isresolved) + '\n'
 
     def to_json(self):
