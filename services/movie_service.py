@@ -31,7 +31,7 @@ def get_candidates(movie):
                     candidate.imdb_id = _extract_imdb_id(item['link'])
                     candidate.imdb_title = movie_entry['name']
                     candidate.imdb_description = movie_entry['description']
-                    complete_movie_with_omdb(candidate) # Adding further attributes to the movie object
+                    complete_movie_with_omdb(candidate)  # Adding further attributes to the movie object
 
                     print(candidate)
 
@@ -66,7 +66,8 @@ def complete_movie_with_omdb(movie):
     movie.poster = response['Poster']
     movie.rating_imdb = response['imdbRating']
     movie.rating_rotten_tomatoes = \
-        next((rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes'), {'Value': ''})['Value']
+        next((rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes'), {'Value': ''})[
+            'Value']
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
     movie.isresolved = True
@@ -74,12 +75,15 @@ def complete_movie_with_omdb(movie):
 
 # Save movie into database
 def save_movie(movie):
-    db.movie.insert(json.loads(movie.to_json()))
+    movie_json = json.loads(movie.to_json())
+    movie_json['_id'] = uuid.uuid1()
+    db.movie.insert(movie_json)
 
 
-# Update movie in the databse given its ID and the updated content
-def update_movie(sapo_id, update):
-    db.schedule.update_one({'sapo_id': sapo_id}, json.loads(update.to_json()))
+# Replacing movie entry with the new one
+def replace_movie(movie):
+    db.movie.delete_one({'sapo_id': movie.sapo_id})
+    save_movie(movie)
 
 
 # Save schedule into database
@@ -94,11 +98,11 @@ def exists_movie_in_db(sapo_id):
 
 # Check whether a schedule already exists in database
 def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
-    return db.schedule.find({ \
-        'sapo_id': sapo_id, \
-        'sapo_channel': sapo_channel, \
-        'sapo_start_datetime': sapo_start_datetime \
-        }).count() != 0
+    return db.schedule.find({
+        'sapo_id': sapo_id,
+        'sapo_channel': sapo_channel,
+        'sapo_start_datetime': sapo_start_datetime
+    }).count() != 0
 
 
 # Add movie to the unresolved movies in the database
