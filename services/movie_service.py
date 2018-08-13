@@ -70,7 +70,6 @@ def complete_movie_with_omdb(movie):
             'Value']
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
-    movie.isresolved = True
 
 
 # Save movie into database

@@ -32,5 +32,7 @@ if __name__ == '__main__':
             print('Chosen option: ')
 
         option = int(sys.stdin.readline()) # reading option from stdin
-        ms.replace_movie(candidates[option-1]) # Electing chosen movie
+        elected = candidates[option - 1]
+        elected.isresolved = True
+        ms.replace_movie(elected) # Replace movie with elected one
         ms.delete_candidates(unresolved_movie.sapo_id) # Deleting all previous candidates

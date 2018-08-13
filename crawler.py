@@ -47,7 +47,9 @@ if __name__ == '__main__':
                 if not candidates:
                     raise Exception('No candidates found for movie {}'.format(movie.sapo_title))
                 elif len(candidates) == 1:
-                    ms.save_movie(candidates.pop())
+                    elected = candidates.pop()
+                    elected.isresolved = True
+                    ms.save_movie(elected)
                 else:
                     ms.save_candidates(candidates)
                     ms.save_movie(movie)
