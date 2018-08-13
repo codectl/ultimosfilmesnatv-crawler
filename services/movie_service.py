@@ -66,7 +66,7 @@ def complete_movie_with_omdb(movie):
     movie.poster = response['Poster']
     movie.rating_imdb = response['imdbRating']
     movie.rating_rotten_tomatoes = \
-        next(rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes')['Value']
+        next((rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes'), {'Value': ''})['Value']
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
     movie.isresolved = True
