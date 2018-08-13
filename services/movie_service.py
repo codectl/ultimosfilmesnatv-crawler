@@ -33,8 +33,6 @@ def get_candidates(movie):
                     candidate.imdb_description = movie_entry['description']
                     complete_movie_with_omdb(candidate)  # Adding further attributes to the movie object
 
-                    print(candidate)
-
                     candidates.append(candidate)
 
     return candidates
