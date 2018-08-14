@@ -14,7 +14,6 @@ def get_candidates(movie):
     }
     url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.parse.urlencode(params)
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-    print(url)
 
     candidates = []
 
