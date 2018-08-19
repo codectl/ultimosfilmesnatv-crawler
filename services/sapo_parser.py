@@ -27,9 +27,10 @@ def parse(response):
 
         if _validate_movie(sapo_title):
 
-            movie_json = json.loads(dumps(ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)))
+            mongo_result = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
 
-            if movie_json is None:
+            # Only add new movie if does not exist
+            if mongo_result is None:
                 movie = Movie()
                 movie.sapo_id = sapo_id
                 movie.sapo_title = sapo_title
@@ -37,7 +38,7 @@ def parse(response):
                 movies.append(movie)
 
             else:
-                movie = Movie(movie_json)
+                movie = Movie(json.loads(dumps(mongo_result)))
                 sapo_id = movie.sapo_id
 
             schedule = Schedule()

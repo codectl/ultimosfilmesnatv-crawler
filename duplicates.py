@@ -10,9 +10,9 @@ if __name__ == '__main__':
         found = db.movie.find_one({'title': movie.title, 'year': movie.year, 'sapo_id': {'$ne': movie.sapo_id}})
         if found is not None:
             found = Movie(found)
-            db.schedule.update({'sapo_id': found.sapo_id}, {'$set': {'sapo_id': movie.sapo_id}})
-            db.candidate.remove({'sapo_id': found.sapo_id})
-            db.movie.remove({'sapo_id': found.sapo_id})
+            # db.schedule.update({'sapo_id': found.sapo_id}, {'$set': {'sapo_id': movie.sapo_id}})
+            # db.candidate.remove({'sapo_id': found.sapo_id})
+            # db.movie.remove({'sapo_id': found.sapo_id})
             print(found.imdb_id)
             print(movie.imdb_id)
             print('***********')

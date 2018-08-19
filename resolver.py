@@ -27,7 +27,9 @@ if __name__ == '__main__':
 
             print('[{}] Title: {}'.format(index, candidate.imdb_title))
             print('    Year: {}'.format(candidate.year))
-            print('    Description: {}'.format(candidate.plot))
+            print('    OMDB Description: {}'.format(candidate.plot))
+            print('    IMDb Description: {}'.format(candidate.imdb_description))
+            print('    Actors: {}'.format(candidate.actors))
             print('Chosen option: ')
 
         option = int(sys.stdin.readline())  # reading option from stdin
