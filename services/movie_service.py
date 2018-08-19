@@ -15,24 +15,26 @@ def get_candidates(movie):
     url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.parse.urlencode(params)
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 
+    print(url)
+
     candidates = []
 
     for item in response['items']:
-        if 'pagemap' in item and 'movie' in item['pagemap'] is not None:
-            for movie_entry in item['pagemap']['movie']:
-                if 'description' in movie_entry and \
-                        'imdb' in item['link'] and \
-                        not _exists_candidate(candidates, movie_entry['name']):
+        if 'pagemap' in item and 'displayLink' in item and 'metatags' in item['pagemap'] and \
+                item['displayLink'] == 'www.imdb.com':
+            for metatag in item['pagemap']['metatags']:
+                if 'og:site_name' in metatag and metatag['og:site_name'] == 'IMDb' and \
+                        'og:title' in metatag and not _exists_candidate(candidates, metatag['og:title']):
                     candidate = Movie()
                     candidate.sapo_id = movie.sapo_id
                     candidate.sapo_title = movie.sapo_title
                     candidate.sapo_description = movie.sapo_description
-                    candidate.imdb_id = _extract_imdb_id(item['link'])
-                    candidate.imdb_title = movie_entry['name']
-                    candidate.imdb_description = movie_entry['description']
-                    complete_movie_with_omdb(candidate)  # Adding further attributes to the movie object
+                    candidate.imdb_id = metatag['pageid']
+                    candidate.imdb_title = metatag['og:title']
+                    candidate.imdb_description = metatag['og:description']
 
-                    candidates.append(candidate)
+                    if complete_movie_with_omdb(candidate):  # Adding further attributes to the movie object
+                        candidates.append(candidate)
 
     return candidates
 
@@ -45,7 +47,11 @@ def complete_movie_with_omdb(movie):
     }
     url = CONFIG.OMDB_ENDPOINT + '?' + urllib.parse.urlencode(params)
     print(url)
+
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+
+    if response['Response'] == 'False':
+        return False
 
     movie.title = response['Title']
     movie.year = response['Year']
@@ -66,7 +72,14 @@ def complete_movie_with_omdb(movie):
         next((rating for rating in response['Ratings'] if rating['Source'] == 'Rotten Tomatoes'), {'Value': ''})[
             'Value']
     movie.rating_metacritic = response['Metascore']
-    movie.website = response['Website']
+    movie.website = response['Website'] if 'Website' in response else ''
+
+    return True
+
+
+# Gets movie from database given its ID
+def get_movie_in_db_by_id(sapo_id):
+    return db.movie.find_one({'sapo_id': sapo_id})
 
 
 # Save movie into database
@@ -87,9 +100,14 @@ def save_schedule(schedule):
     db.schedule.insert(json.loads(schedule.to_json()))
 
 
-# Check whether a movie already exists in database given its ID
-def exists_movie_in_db(sapo_id):
+# Check whether a movie already exists in database by ID
+def exists_movie_in_db_by_sapo_id(sapo_id):
     return db.movie.find({'sapo_id': sapo_id}).count() != 0
+
+
+# Gets a movie in db given its name and description
+def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
+    return db.movie.find_one({'sapo_title': sapo_title, 'sapo_description': sapo_description})
 
 
 # Check whether a schedule already exists in database
@@ -128,8 +146,3 @@ def _exists_candidate(candidates, name):
         if candidate.imdb_title == name:
             return True
     return False
-
-
-# Extracting IMDB title ID
-def _extract_imdb_id(link):
-    return link.replace('https://www.imdb.com/title', '').replace('/', '')

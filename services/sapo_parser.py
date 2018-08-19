@@ -1,8 +1,11 @@
 import xml.etree.ElementTree as ET
+from bson.json_util import dumps
+import json
+import re
+import services.movie_service as ms
 from models.movie import Movie
 from models.schedule import Schedule
 from configs.config import CONFIG
-import re
 
 ns = {'sapo': CONFIG.SAPO_NS}
 
@@ -20,13 +23,23 @@ def parse(response):
 
         sapo_id = program.find('sapo:Id', ns).text
         sapo_title = program.find('sapo:Title', ns).text
+        sapo_description = program.find('sapo:Description', ns).text
 
         if _validate_movie(sapo_title):
-            movie = Movie()
-            movie.sapo_id = sapo_id
-            movie.sapo_title = sapo_title
-            movie.sapo_description = program.find('sapo:Description', ns).text
-            movies.append(movie)
+
+            mongo_result = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
+
+            # Only add new movie if does not exist
+            if mongo_result is None:
+                movie = Movie()
+                movie.sapo_id = sapo_id
+                movie.sapo_title = sapo_title
+                movie.sapo_description = sapo_description
+                movies.append(movie)
+
+            else:
+                movie = Movie(json.loads(dumps(mongo_result)))
+                sapo_id = movie.sapo_id
 
             schedule = Schedule()
             schedule.sapo_id = sapo_id
@@ -48,4 +61,6 @@ def _validate_movie(sapo_title):
 
 # Validating if it is a series
 def _validate_movie_title_sapo(sapo_title):
-    return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None
+    return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
+           and 'Grandes Realizadores' not in sapo_title \
+           and 'Zoom In' not in sapo_title

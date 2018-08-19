@@ -1,6 +1,6 @@
 import datetime
 import urllib, urllib.request
-import services.sapo_parser as epgparser
+import services.sapo_parser as sapoparser
 import services.movie_service as ms
 from configs.config import CONFIG
 import json
@@ -35,17 +35,18 @@ if __name__ == '__main__':
         response = request_daily_epg(channel)
 
         # Parsing performed sapo request
-        movies, schedules = epgparser.parse(response)
+        movies, schedules = sapoparser.parse(response)
 
         # Persist each movie
         for movie in movies:
 
-            if not ms.exists_movie_in_db(movie.sapo_id):
+            # Add candidates ony if movie does not exist in db
+            if not ms.exists_movie_in_db_by_sapo_id(movie.sapo_id):
 
                 candidates = ms.get_candidates(movie)
 
                 if not candidates:
-                    raise Exception('No candidates found for movie {}'.format(movie.sapo_title))
+                    print('No candidates found for movie {}'.format(movie.sapo_title))
                 elif len(candidates) == 1:
                     elected = candidates.pop()
                     elected.isresolved = True
@@ -53,9 +54,6 @@ if __name__ == '__main__':
                 else:
                     ms.save_candidates(candidates)
                     ms.save_movie(movie)
-
-            else:
-                print("Skipping, movie already exists")
 
         # Persist each schedule
         for schedule in schedules:
