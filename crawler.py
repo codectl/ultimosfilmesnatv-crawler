@@ -40,7 +40,8 @@ if __name__ == '__main__':
         # Persist each movie
         for movie in movies:
 
-            if not ms.exists_movie_in_db(movie):
+            # Add candidates ony if movie does not exist in db
+            if not ms.exists_movie_in_db_by_sapo_id(movie.sapo_id):
 
                 candidates = ms.get_candidates(movie)
 

@@ -99,9 +99,14 @@ def save_schedule(schedule):
     db.schedule.insert(json.loads(schedule.to_json()))
 
 
-# Check whether a movie already exists in database
-def exists_movie_in_db(movie):
-    return db.movie.find({'sapo_title': movie.sapo_title, 'sapo_description': movie.sapo_description}).count() != 0
+# Check whether a movie already exists in database by ID
+def exists_movie_in_db_by_sapo_id(sapo_id):
+    return db.movie.find({'sapo_id': sapo_id}).count() != 0
+
+
+# Gets a movie in db given its name and description
+def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
+    return db.movie.find({'sapo_title': sapo_title, 'sapo_description': sapo_description})
 
 
 # Check whether a schedule already exists in database
