@@ -15,12 +15,15 @@ def get_candidates(movie):
     url = CONFIG.GOOGLE_ENDPOINT + '?' + urllib.parse.urlencode(params)
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 
+    print(url)
+
     candidates = []
 
     for item in response['items']:
         if 'pagemap' in item and 'movie' in item['pagemap'] is not None:
             for movie_entry in item['pagemap']['movie']:
                 if 'description' in movie_entry and \
+                        'datepublished' in movie_entry and \
                         'imdb' in item['link'] and \
                         not _exists_candidate(candidates, movie_entry['name']):
                     candidate = Movie()
@@ -30,9 +33,9 @@ def get_candidates(movie):
                     candidate.imdb_id = _extract_imdb_id(item['link'])
                     candidate.imdb_title = movie_entry['name']
                     candidate.imdb_description = movie_entry['description']
-                    complete_movie_with_omdb(candidate)  # Adding further attributes to the movie object
 
-                    candidates.append(candidate)
+                    if complete_movie_with_omdb(candidate):  # Adding further attributes to the movie object
+                        candidates.append(candidate)
 
     return candidates
 
@@ -44,8 +47,10 @@ def complete_movie_with_omdb(movie):
         'i': movie.imdb_id
     }
     url = CONFIG.OMDB_ENDPOINT + '?' + urllib.parse.urlencode(params)
-    print(url)
     response = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+
+    if response['Response'] == 'False':
+        return False
 
     movie.title = response['Title']
     movie.year = response['Year']
@@ -68,6 +73,13 @@ def complete_movie_with_omdb(movie):
     movie.rating_metacritic = response['Metascore']
     movie.website = response['Website']
 
+    return True
+
+
+# Gets movie from database given its ID
+def get_movie_in_db_by_id(sapo_id):
+    return db.movie.find_one({'sapo_id': sapo_id})
+
 
 # Save movie into database
 def save_movie(movie):
@@ -87,9 +99,9 @@ def save_schedule(schedule):
     db.schedule.insert(json.loads(schedule.to_json()))
 
 
-# Check whether a movie already exists in database given its ID
-def exists_movie_in_db(sapo_id):
-    return db.movie.find({'sapo_id': sapo_id}).count() != 0
+# Check whether a movie already exists in database
+def exists_movie_in_db(movie):
+    return db.movie.find({'sapo_title': movie.sapo_title, 'sapo_description': movie.sapo_description}).count() != 0
 
 
 # Check whether a schedule already exists in database

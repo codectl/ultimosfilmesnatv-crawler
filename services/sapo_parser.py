@@ -48,4 +48,6 @@ def _validate_movie(sapo_title):
 
 # Validating if it is a series
 def _validate_movie_title_sapo(sapo_title):
-    return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None
+    return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
+        and 'Grandes Realizadores' not in sapo_title \
+        and 'Zoom In' not in sapo_title
