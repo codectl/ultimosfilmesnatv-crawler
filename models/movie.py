@@ -30,6 +30,7 @@ class Movie:
             self.rating_metacritic = ''
             self.website = ''
             self.isresolved = False
+            self.nocandidates = False
         else:
             for key, value in json_obj.items():
                 self.__dict__[key] = value

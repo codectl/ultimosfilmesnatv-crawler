@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import xml.etree.ElementTree as ET
 from bson.json_util import dumps
 import json
@@ -27,19 +28,26 @@ def parse(response):
 
         if _validate_movie(sapo_title):
 
+            # Check if movie exists in db by name and description
             mongo_result = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
 
-            # Only add new movie if does not exist
-            if mongo_result is None:
+            # Check if movie is on the list of movies to add
+            existing_movie = _get_movie_from_list(movies, sapo_title, sapo_description)
+
+            # Combine movie if already exists one of the same
+            if mongo_result is not None:
+                movie = Movie(json.loads(dumps(mongo_result)))
+                sapo_id = movie.sapo_id
+            elif existing_movie is not None:
+                sapo_id = existing_movie.sapo_id
+
+            # Otherwise add new one
+            else:
                 movie = Movie()
                 movie.sapo_id = sapo_id
                 movie.sapo_title = sapo_title
                 movie.sapo_description = sapo_description
                 movies.append(movie)
-
-            else:
-                movie = Movie(json.loads(dumps(mongo_result)))
-                sapo_id = movie.sapo_id
 
             schedule = Schedule()
             schedule.sapo_id = sapo_id
@@ -63,4 +71,13 @@ def _validate_movie(sapo_title):
 def _validate_movie_title_sapo(sapo_title):
     return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
            and 'Grandes Realizadores' not in sapo_title \
-           and 'Zoom In' not in sapo_title
+           and 'Zoom In' not in sapo_title \
+           and 'Fecho de Emissão' not in sapo_title
+
+
+# Get movie from list of movies to add if exists
+def _get_movie_from_list(movies, sapo_title, sapo_description):
+    for m in movies:
+        if m.sapo_title == sapo_title and m.sapo_description == sapo_description:
+            return m
+    return None

@@ -3,12 +3,16 @@ import json
 
 class Schedule:
 
-    def __init__(self):
-        self.sapo_id = ''
-        self.sapo_channel = ''
-        self.sapo_start_datetime = ''
-        self.sapo_end_datetime = ''
-        self.sapo_duration = ''
+    def __init__(self, json_obj=None):
+        if json_obj == None:
+            self.sapo_id = ''
+            self.sapo_channel = ''
+            self.sapo_start_datetime = ''
+            self.sapo_end_datetime = ''
+            self.sapo_duration = ''
+        else:
+            for key, value in json_obj.items():
+                self.__dict__[key] = value
 
     def __str__(self):
         return \

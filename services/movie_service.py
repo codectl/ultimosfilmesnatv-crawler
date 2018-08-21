@@ -24,7 +24,8 @@ def get_candidates(movie):
                 item['displayLink'] == 'www.imdb.com':
             for metatag in item['pagemap']['metatags']:
                 if 'og:site_name' in metatag and metatag['og:site_name'] == 'IMDb' and \
-                        'og:title' in metatag and not _exists_candidate(candidates, metatag['og:title']):
+                        'og:title' in metatag and '(TV series' not in metatag['og:title'] and \
+                        not _exists_candidate(candidates, metatag['og:title']):
                     candidate = Movie()
                     candidate.sapo_id = movie.sapo_id
                     candidate.sapo_title = movie.sapo_title
