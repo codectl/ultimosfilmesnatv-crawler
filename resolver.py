@@ -3,6 +3,8 @@ from models.movie import Movie
 from bson.json_util import dumps
 import json
 import sys
+from PIL import Image
+import urllib.request, io
 
 if __name__ == '__main__':
     unresolved_movies_json = json.loads(dumps(ms.get_all_unresolved_movies()))
@@ -10,6 +12,12 @@ if __name__ == '__main__':
     # Solving each unresolved movie
     for unresolved_movie_json in unresolved_movies_json:
         unresolved_movie = Movie(unresolved_movie_json)  # Getting object from json
+
+        img = 'http://services.online.meo.pt/Data/2013/11/programs/media/image/{}/L'.format(unresolved_movie.sapo_id)
+        print(img)
+        file = io.BytesIO(urllib.request.urlopen(img).read())
+        image = Image.open(file)
+        image.show()
 
         print('\n')
         print('*** {} ***'.format(unresolved_movie.sapo_id))
