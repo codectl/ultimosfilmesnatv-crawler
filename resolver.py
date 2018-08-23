@@ -40,8 +40,23 @@ if __name__ == '__main__':
             print('    Actors: {}'.format(candidate.actors))
             print('Chosen option: ')
 
-        option = int(sys.stdin.readline())  # reading option from stdin
-        elected = candidates[option - 1]
-        elected.isresolved = True
-        ms.replace_movie(elected)  # Replace movie with elected one
-        ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates
+        option = sys.stdin.readline()  # reading option from stdin
+
+        try: # Check whether the input is an int
+            option = int(option)
+        except ValueError:
+            if option[:2] == 'tt': # Checking whether it is an IMDb ID 
+                unresolved_movie.imdb_id = option
+                ms.complete_movie_with_omdb(unresolved_movie)
+                unresolved_movie.imdb_title = unresolved_movie.title + '(' + unresolved_movie.year + ')'
+                unresolved_movie.isresolved = True
+                ms.replace_movie(unresolved_movie) # Replace old entry with updated one
+                ms.delete_candidates(unresolved_movie.sapo_id)  # Delete candidates
+            else:
+                raise Exception('Invalid option')
+        else:
+            elected = candidates[option - 1]
+            elected.isresolved = True
+            ms.replace_movie(elected)  # Replace movie with elected one
+            ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates            
+                
