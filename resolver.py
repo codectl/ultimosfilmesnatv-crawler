@@ -13,13 +13,7 @@ if __name__ == '__main__':
     # Solving each unresolved movie
     for unresolved_movie_json in unresolved_movies_json:
         unresolved_movie = Movie(unresolved_movie_json)  # Getting object from json
-
-        img = 'http://services.online.meo.pt/Data/2013/11/programs/media/image/{}/L'.format(unresolved_movie.sapo_id)
-        print(img)
-        file = io.BytesIO(urllib.request.urlopen(img).read())
-        image = Image.open(file)
-        image.show()
-
+        
         schedule = Schedule(json.loads(dumps(ms.get_channel_movie(unresolved_movie.sapo_id))))
 
         print('\n')
@@ -27,6 +21,7 @@ if __name__ == '__main__':
         print('Movie sapo title: {}'.format(unresolved_movie.sapo_title))
         print('Movie sapo description: {}'.format(unresolved_movie.sapo_description))
         print('* Choose one of the following candidates *')
+        _print_img(unresolved_movie.sapo_id) # Printing movie image
 
         # Electing the right candidate
         candidates_json = json.loads(dumps(ms.get_all_candidates(unresolved_movie.sapo_id)))
@@ -62,4 +57,12 @@ if __name__ == '__main__':
             elected.isresolved = True
             ms.replace_movie(elected)  # Replace movie with elected one
             ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates            
-                
+
+
+# Printing image
+def _print_img(sapo_id):
+    img = 'http://services.online.meo.pt/Data/2013/11/programs/media/image/{}/L'.format(sapo_id)
+    print(img)
+    file = io.BytesIO(urllib.request.urlopen(img).read())
+    image = Image.open(file)
+    image.show()
