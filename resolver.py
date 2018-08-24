@@ -1,5 +1,6 @@
 import services.movie_service as ms
 from models.movie import Movie
+from models.schedule import Schedule
 from bson.json_util import dumps
 import json
 import sys
@@ -19,8 +20,10 @@ if __name__ == '__main__':
         image = Image.open(file)
         image.show()
 
+        schedule = Schedule(json.loads(dumps(ms.get_channel_movie(unresolved_movie.sapo_id))))
+
         print('\n')
-        print('*** {} ***'.format(unresolved_movie.sapo_id))
+        print('*** {} *** [{}]'.format(unresolved_movie.sapo_id, schedule.sapo_channel))
         print('Movie sapo title: {}'.format(unresolved_movie.sapo_title))
         print('Movie sapo description: {}'.format(unresolved_movie.sapo_description))
         print('* Choose one of the following candidates *')

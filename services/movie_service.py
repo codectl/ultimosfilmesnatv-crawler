@@ -147,3 +147,7 @@ def _exists_candidate(candidates, name):
         if candidate.imdb_title == name:
             return True
     return False
+
+# Getting first channel found of a certain movie
+def get_channel_movie(sapo_id):
+    return db.schedule.find_one({'sapo_id': sapo_id})
