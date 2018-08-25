@@ -16,23 +16,51 @@ def detect_web_uri(uri):
 
 def evaluate_candidate(annotations, candidate):
     """Matching candidates with Google Vision API"""
-    for page in annotations.pages_with_matching_images:
-        if 'https://www.imdb.com' in page.url:
-            if candidate.imdb_id in page.url:
-                return True
-    return False
+    matches = []
+    # Looking for IMDb links
+    if annotations.pages_with_matching_images:
+        for page in annotations.pages_with_matching_images:
+            if 'https://www.imdb.com' in page.url and candidate.imdb_id in page.url:
+                matches.append(('imdb link', candidate.imdb_id))
+                break
+
+    # Looking for web entities
+    if annotations.web_entities:
+        for entity in annotations.web_entities:
+            if entity.description and not any(entity.description == match[1] for match in matches) and \
+                    len(entity.description) > 3:
+                if entity.description in candidate.imdb_title:
+                    matches.append(('imdb title', entity.description))
+                if entity.description in candidate.actors:
+                    matches.append(('actors', entity.description))
+                elif entity.description in candidate.extract_actors():
+                    matches.append(('actors', entity.description))
+                if entity.description == candidate.year:
+                    matches.append(('year', entity.description))
+                if entity.description == candidate.director:
+                    matches.append(('director', entity.description))
+
+    # Looking for best guesses
+    if annotations.best_guess_labels:
+        for label in annotations.best_guess_labels:
+            if label.label.lower() in candidate.imdb_title.lower():
+                matches.append(('best guess', label.label))
+
+    return matches
 
 
 def google_vision_candidates(annotations, candidates):
     """Additional candidates returned by Google Vision API"""
     other_candidates = []
-    for page in annotations.pages_with_matching_images:
-        if 'https://www.imdb.com' in page.url:
-            imdb_id = _extract_imdb_id(page.url)
-            # Checking if candidate is in list of results
-            if not any(candidate.imdb_id == imdb_id for candidate in candidates) and imdb_id not in other_candidates:
+    if annotations.pages_with_matching_images:
+        for page in annotations.pages_with_matching_images:
+            if 'https://www.imdb.com' in page.url:
                 imdb_id = _extract_imdb_id(page.url)
-                other_candidates.append(imdb_id)
+                # Checking if candidate is in list of results
+                if not any(
+                        candidate.imdb_id == imdb_id for candidate in candidates) and imdb_id not in other_candidates:
+                    imdb_id = _extract_imdb_id(page.url)
+                    other_candidates.append(imdb_id)
     return other_candidates
 
 

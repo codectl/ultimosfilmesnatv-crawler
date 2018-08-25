@@ -12,7 +12,6 @@ from configs.config import CONFIG
 
 def _print_img(uri):
     """Printing image"""
-    print(uri)
     file = io.BytesIO(urllib.request.urlopen(uri).read())
     image = Image.open(file)
     image.show()
@@ -42,19 +41,27 @@ if __name__ == '__main__':
         candidates_json = json.loads(dumps(ms.get_all_candidates(unresolved_movie.sapo_id)))
         candidates = []
 
-        for index, candidate_json in enumerate(candidates_json, start=1):
+        for candidate_json in candidates_json:
             candidate = Movie(candidate_json)  # Getting object from json
-            candidates.append(candidate)
+            candidates.append((candidate, im.evaluate_candidate(annotations, candidate)))
 
-            print('[{}] Title: {}'.format(index, candidate.imdb_title))
-            print('    Google vision match?: {}'.format(im.evaluate_candidate(annotations, candidate)))
+        candidates.sort(key=lambda tuple: len(tuple[1]), reverse=True)  # Sorting by number of matches
+
+        for index, (candidate, matches) in enumerate(candidates, start=1):
+            print('\n')
+            print('[{}] Title: {} - {}'.format(index, candidate.imdb_title, candidate.imdb_id))
             print('    OMDB Description: {}'.format(candidate.plot))
             print('    IMDb Description: {}'.format(candidate.imdb_description))
             print('    Actors: {}'.format(candidate.actors))
+            print('    Matches: {} - {}'.format(len(matches), matches))
 
         # Additional candidates to include in movie selection
-        for additional_candidate in im.google_vision_candidates(annotations, candidates):
-            print(additional_candidate)
+        additional_candidates = im.google_vision_candidates(annotations, [tuple[0] for tuple in candidates])
+        if len(additional_candidates) > 0:
+            print('\n')
+            print('Additional candidates found')
+            for additional_candidate in additional_candidates:
+                print(additional_candidate)
 
         print('Chosen option: ')
         option = sys.stdin.readline()  # reading option from stdin
@@ -72,7 +79,7 @@ if __name__ == '__main__':
             else:
                 raise Exception('Invalid option')
         else:
-            elected = candidates[option - 1]
+            elected = candidates[option - 1][0]
             elected.isresolved = True
             ms.replace_movie(elected)  # Replace movie with elected one
             ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates
