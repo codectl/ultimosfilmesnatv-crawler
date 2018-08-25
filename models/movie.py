@@ -51,5 +51,14 @@ class Movie:
             'Actors: ' + self.actors + '\n' + \
             'IsResolved?: ' + str(self.isresolved) + '\n'
 
+    def extract_actors(self):
+        """Extracting actors from IMDb description"""
+        description = self.imdb_description
+        if description.split(' ')[0].strip() == 'Directed':
+            description = description.split('.')[1]
+        if description.split(' ')[0].strip() == 'With':
+            return description.split(' ')[1].strip().split('.')[0]
+        return ''
+
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
