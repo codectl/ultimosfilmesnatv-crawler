@@ -49,10 +49,6 @@ if __name__ == '__main__':
                     print('No candidates found for movie {}'.format(movie.sapo_title))
                     movie.nocandidates = True
                     ms.save_movie(movie)
-                elif len(candidates) == 1:
-                    elected = candidates.pop()
-                    elected.isresolved = True
-                    ms.save_movie(elected)
                 else:
                     ms.save_candidates(candidates)
                     ms.save_movie(movie)

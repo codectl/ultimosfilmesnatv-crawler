@@ -6,6 +6,7 @@ import uuid
 
 
 def get_candidates(movie):
+    """Getting movie candidates from Google search"""
     query = movie.sapo_title + ' imdb'
     params = {
         'key': CONFIG.GOOGLE_KEY,
@@ -40,8 +41,8 @@ def get_candidates(movie):
     return candidates
 
 
-#  Fill all relevant info of a movie
 def complete_movie_with_omdb(movie):
+    """Fill all relevant info of a movie"""
     params = {
         'apikey': CONFIG.OMDB_KEY,
         'i': movie.imdb_id
@@ -78,41 +79,41 @@ def complete_movie_with_omdb(movie):
     return True
 
 
-# Gets movie from database given its ID
 def get_movie_in_db_by_id(sapo_id):
+    """Gets movie from database given its ID"""
     return db.movie.find_one({'sapo_id': sapo_id})
 
 
-# Save movie into database
 def save_movie(movie):
+    """Save movie into database"""
     movie_json = json.loads(movie.to_json())
     movie_json['_id'] = uuid.uuid1()
     db.movie.insert(movie_json)
 
 
-# Replacing movie entry with the new one
 def replace_movie(movie):
+    """Replacing movie entry with the new one"""
     db.movie.delete_one({'sapo_id': movie.sapo_id})
     save_movie(movie)
 
 
-# Save schedule into database
 def save_schedule(schedule):
+    """Save schedule into database"""
     db.schedule.insert(json.loads(schedule.to_json()))
 
 
-# Check whether a movie already exists in database by ID
 def exists_movie_in_db_by_sapo_id(sapo_id):
+    """Check whether a movie already exists in database by ID"""
     return db.movie.find({'sapo_id': sapo_id}).count() != 0
 
 
-# Gets a movie in db given its name and description
 def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
+    """Gets a movie in db given its name and description"""
     return db.movie.find_one({'sapo_title': sapo_title, 'sapo_description': sapo_description})
 
 
-# Check whether a schedule already exists in database
 def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
+    """Check whether a schedule already exists in database"""
     return db.schedule.find({
         'sapo_id': sapo_id,
         'sapo_channel': sapo_channel,
@@ -120,34 +121,35 @@ def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
     }).count() != 0
 
 
-# Add movie to the unresolved movies in the database
 def save_candidates(candidates):
+    """Add movie to the unresolved movies in the database"""
     for candidate in candidates:
         db.candidate.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
 
 
-# Delete candidate movies
 def delete_candidates(sapo_id):
+    """Delete candidate movies"""
     db.candidate.delete_many({'sapo_id': sapo_id})
 
 
-# Get list of unresolved movies
 def get_all_unresolved_movies():
+    """Get list of unresolved movies"""
     return db.movie.find({'isresolved': False})
 
 
-# Getting list of unresolved movies
 def get_all_candidates(sapo_id):
+    """Getting list of unresolved movies"""
     return db.candidate.find({'sapo_id': sapo_id})
 
 
-# Checking whether certain movie is already present in the candidates list
 def _exists_candidate(candidates, name):
+    """Checking whether certain movie is already present in the candidates list"""
     for candidate in candidates:
         if candidate.imdb_title == name:
             return True
     return False
 
-# Getting first channel found of a certain movie
+
 def get_channel_movie(sapo_id):
+    """Getting first channel found of a certain movie"""
     return db.schedule.find_one({'sapo_id': sapo_id})
