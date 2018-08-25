@@ -18,6 +18,7 @@ def load_properties():
     properties.DATABASE_ENDPOINT = config.get('database', 'endpoint')
 
     properties.SAPO_ENDPOINT = config.get('sapo', 'endpoint')
+    properties.SAPO_IMAGE = config.get('sapo', 'image')
     properties.SAPO_NS = config.get('sapo', 'ns')
 
     properties.OMDB_ENDPOINT = config.get('omdb', 'endpoint')
