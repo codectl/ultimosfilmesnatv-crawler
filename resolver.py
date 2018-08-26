@@ -41,11 +41,17 @@ if __name__ == '__main__':
         candidates_json = json.loads(dumps(ms.get_all_candidates(unresolved_movie.sapo_id)))
         candidates = []
 
+        ###############################################
+        # Evaluating each candidate to a set of rules #
+        ###############################################
         for candidate_json in candidates_json:
             candidate = Movie(candidate_json)  # Getting object from json
-            candidates.append((candidate, im.evaluate_candidate(annotations, candidate)))
+            rules = im.evaluate_candidate(annotations, candidate)
+            rules += candidate.get_description_sapo_matches()
+            candidate.set_score(rules, unresolved_movie)  # Setting score based on a set of rules/parameters
+            candidates.append((candidate, rules))
 
-        candidates.sort(key=lambda tuple: len(tuple[1]), reverse=True)  # Sorting by number of matches
+        candidates.sort(key=lambda tuple: tuple[0].score, reverse=True)  # Sorting by number of matches
 
         for index, (candidate, matches) in enumerate(candidates, start=1):
             print('\n')
@@ -53,7 +59,7 @@ if __name__ == '__main__':
             print('    OMDB Description: {}'.format(candidate.plot))
             print('    IMDb Description: {}'.format(candidate.imdb_description))
             print('    Actors: {}'.format(candidate.actors))
-            print('    Matches: {} - {}'.format(len(matches), matches))
+            print('    Scored: {} *** {} matches: {}'.format(candidate.score, len(matches), matches))
 
         # Additional candidates to include in movie selection
         additional_candidates = im.google_vision_candidates(annotations, [tuple[0] for tuple in candidates])
