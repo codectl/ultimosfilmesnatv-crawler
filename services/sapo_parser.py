@@ -24,6 +24,7 @@ def parse(response):
 
         sapo_id = program.find('sapo:Id', ns).text
         sapo_title = program.find('sapo:Title', ns).text
+        sapo_title = sapo_title.replace('(V.O.)', '').replace('(V.P.)', '').strip()
         sapo_description = program.find('sapo:Description', ns).text
 
         if _validate_movie(sapo_title):
@@ -70,6 +71,7 @@ def _validate_movie(sapo_title):
 # Validating if it is a series
 def _validate_movie_title_sapo(sapo_title):
     return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
+           and 'Hollywood News' not in sapo_title \
            and 'Grandes Realizadores' not in sapo_title \
            and 'Zoom In' not in sapo_title \
            and 'Fecho de Emissão' not in sapo_title

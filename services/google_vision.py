@@ -27,23 +27,23 @@ def evaluate_candidate(annotations, candidate):
     # Looking for web entities
     if annotations.web_entities:
         for entity in annotations.web_entities:
-            if entity.description and not any(entity.description == match[1] for match in matches) and \
-                    len(entity.description) > 3:
-                if entity.description in candidate.imdb_title:
+            if entity.description and not any(entity.description in match[1] for match in matches) and \
+                    len(entity.description) > 2:
+                if entity.description.lower() in candidate.imdb_title.lower():
                     matches.append(('imdb title', entity.description))
-                if entity.description in candidate.actors:
+                if any(entity.description.lower() == actor.lower() for actor in candidate.combine_all_actors()):
                     matches.append(('actors', entity.description))
-                elif entity.description in candidate.extract_actors():
-                    matches.append(('actors', entity.description))
+                elif entity.description.lower() in candidate.extract_description().lower():
+                    matches.append(('description', entity.description))
                 if entity.description == candidate.year:
                     matches.append(('year', entity.description))
-                if entity.description == candidate.director:
+                if entity.description.lower() == candidate.director.lower():
                     matches.append(('director', entity.description))
 
     # Looking for best guesses
     if annotations.best_guess_labels:
         for label in annotations.best_guess_labels:
-            if label.label.lower() in candidate.imdb_title.lower():
+            if label.label.strip().lower().replace('-', ' ') in candidate.imdb_title.lower().replace('-', ' '):
                 matches.append(('best guess', label.label))
 
     return matches
