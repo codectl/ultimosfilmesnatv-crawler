@@ -58,21 +58,23 @@ class Movie:
         if description.split(' ')[0] == 'Directed':
             description = description.replace(self.director, '').split('.')[1].strip()
         if description.split(' ')[0] == 'With':
-            return description.split(' ', 1)[1]
+            return description.split(' ', 1)[1].strip()
         return ''
 
-    def extract_description(self):
+    def extract_description_from_imdb(self):
         """Extracts description from IMDb description"""
         description = self.imdb_description.strip()
         if description.split(' ')[0] == 'Directed':
-            description = description.split('.', 1)[1].strip()
+            description = description.replace(self.director, '').split('.', 1)[1].strip()
         if description.split(' ')[0] == 'With':
-            return description.split('.', 1)[1].strip()
-        return ''
+            description = description.split('.', 1)[1].strip()
+        return description
 
     def combine_all_actors(self):
         """Combine all actors from IMDb and OMDb with no duplicates"""
-        return list(set(self.extract_actors().split(',') + self.actors.split(',')))
+        extracted_actors = self.extract_actors()
+        return list(set(
+            map(lambda e: e.strip(), extracted_actors.split(',')) if extracted_actors else [] + self.actors.split(',')))
 
     def get_description_sapo_matches(self):
         """Checks whether sapo description contains useful information"""
@@ -95,7 +97,7 @@ class Movie:
                 score += 7
             elif rule[0] == 'imdb title':
                 score += 2
-            elif rule[0] == 'actors' or rule[0] == 'actors\'':
+            elif rule[0] == 'actors':
                 score += 3
             elif rule[0] == 'description':
                 score += 1
@@ -107,6 +109,8 @@ class Movie:
                 score += 4
             elif rule[0] == 'description director':
                 score += 5
+            elif rule[0] == 'best guess':
+                score += 2
 
         if self.title == movie.sapo_title:
             score += 4
