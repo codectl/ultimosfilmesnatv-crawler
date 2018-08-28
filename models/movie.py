@@ -92,7 +92,7 @@ class Movie:
         append = False
         substring = ''
         for word in words:
-            if word[0].isupper() and  (len(word)>2 and):
+            if word[0].isupper() and (len(word) > 2 or (len(word) <= 2 and append)):
                 if any(c == word[-1] for c in '(),.\'"'):
                     entities.append(substring.strip() + ' ' + word[:-1])
                     append = False
@@ -111,11 +111,11 @@ class Movie:
         score = 0
         for rule in rules:
             if rule[0] == 'imdb link':
-                score += 7
+                score += 6
             elif rule[0] == 'imdb title':
                 score += 2
             elif rule[0] == 'actors':
-                score += 3
+                score += 4
             elif rule[0] == 'description':
                 score += 1
             elif rule[0] == 'year':
