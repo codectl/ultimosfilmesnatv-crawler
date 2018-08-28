@@ -33,7 +33,7 @@ def evaluate_candidate(annotations, candidate):
                     matches.append(('imdb title', entity.description))
                 if any(entity.description.lower() == actor.lower() for actor in candidate.combine_all_actors()):
                     matches.append(('actors', entity.description))
-                elif entity.description.lower() in candidate.extract_description_from_imdb().lower():
+                elif entity.description.lower() in candidate.plot.lower():
                     matches.append(('description', entity.description))
                 if entity.description == candidate.year:
                     matches.append(('year', entity.description))
