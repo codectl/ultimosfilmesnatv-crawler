@@ -1,4 +1,5 @@
 import json
+import re
 
 
 class Movie:
@@ -56,19 +57,10 @@ class Movie:
         """Extracts actors from IMDb description"""
         description = self.imdb_description.strip()
         if description.split(' ')[0] == 'Directed':
-            description = description.replace(self.director, '').split('.')[1].strip()
+            description = description.replace(self.director, '', 1).split('.')[1].strip()
         if description.split(' ')[0] == 'With':
             return description.split(' ', 1)[1].strip()
         return ''
-
-    def extract_description_from_imdb(self):
-        """Extracts description from IMDb description"""
-        description = self.imdb_description.strip()
-        if description.split(' ')[0] == 'Directed':
-            description = description.replace(self.director, '').split('.', 1)[1].strip()
-        if description.split(' ')[0] == 'With':
-            description = description.split('.', 1)[1].strip()
-        return description
 
     def combine_all_actors(self):
         """Combine all actors from IMDb and OMDb with no duplicates"""
@@ -81,13 +73,38 @@ class Movie:
         matches = []
         actors = self.combine_all_actors()
         for actor in actors:
-            if actor in self.sapo_description:
+            if actor in self.sapo_description:  # Checking actor
                 matches.append(('description actor', actor))
 
         if self.director in self.sapo_description:  # Checking director
             matches.append(('description director', self.director))
 
+        for entity in self._extract_entities_from_description():
+            if entity.lower() in self.plot.lower():  # Checking entities
+                matches.append(('description entity', entity))
+
         return matches
+
+    def _extract_entities_from_description(self):
+        """Extracting information from sapo description"""
+        words = self.sapo_description.strip().split(' ')
+        entities = []
+        append = False
+        substring = ''
+        for word in words:
+            if word[0].isupper() and  (len(word)>2 and):
+                if any(c == word[-1] for c in '(),.\'"'):
+                    entities.append(substring.strip() + ' ' + word[:-1])
+                    append = False
+                    substring = ''
+                else:
+                    substring += ' ' + word
+                    append = True
+            elif append:
+                entities.append(substring.strip())
+                append = False
+                substring = ''
+        return entities
 
     def set_score(self, rules, movie):
         """Getting score for a certain candidate movie"""
@@ -109,6 +126,8 @@ class Movie:
                 score += 4
             elif rule[0] == 'description director':
                 score += 5
+            elif rule[0] == 'description entity':
+                score += 2
             elif rule[0] == 'best guess':
                 score += 2
 
