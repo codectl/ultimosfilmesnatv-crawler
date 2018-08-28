@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
         img_uri = CONFIG.SAPO_IMAGE.format(unresolved_movie.sapo_id)
         _print_img(img_uri)  # Printing movie image
-        annotations = im.detect_web_uri(img_uri)  # Getting nnotation from Google Vision API
+        success_google_vision, annotations = im.detect_web_uri(img_uri)  # Getting nnotation from Google Vision API
 
         # Electing the right candidate
         candidates_json = json.loads(dumps(ms.get_all_candidates(unresolved_movie.sapo_id)))
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         ###############################################
         for candidate_json in candidates_json:
             candidate = Movie(candidate_json)  # Getting object from json
-            rules = im.evaluate_candidate(annotations, candidate)
+            rules = im.evaluate_candidate(annotations, candidate) if success_google_vision else []
             rules += candidate.get_description_sapo_matches()
             candidate.set_score(rules, unresolved_movie)  # Setting score based on a set of rules/parameters
             candidates.append((candidate, rules))
@@ -62,12 +62,13 @@ if __name__ == '__main__':
             print('    Scored: {} *** {} matches: {}'.format(candidate.score, len(matches), matches))
 
         # Additional candidates to include in movie selection
-        additional_candidates = im.google_vision_candidates(annotations, [tuple[0] for tuple in candidates])
-        if len(additional_candidates) > 0:
-            print('\n')
-            print('Additional candidates found')
-            for additional_candidate in additional_candidates:
-                print(additional_candidate)
+        if success_google_vision:
+            additional_candidates = im.google_vision_candidates(annotations, [tuple[0] for tuple in candidates])
+            if len(additional_candidates) > 0:
+                print('\n')
+                print('Additional candidates found')
+                for additional_candidate in additional_candidates:
+                    print(additional_candidate)
 
         print('Chosen option: ')
         option = sys.stdin.readline()  # reading option from stdin

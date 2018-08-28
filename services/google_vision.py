@@ -8,10 +8,17 @@ def detect_web_uri(uri):
     image = vision.types.Image()
     image.source.image_uri = uri
 
-    response = client.web_detection(image=image)
-    annotations = response.web_detection
+    try:
+        response = client.web_detection(image=image)
+    except Exception as e:
+        success = False
+        annotations = None
+        print('Error occured in Google Vision API request: {}', e)
+    else:
+        success = True
+        annotations = response.web_detection
 
-    return annotations
+    return success, annotations
 
 
 def evaluate_candidate(annotations, candidate):
@@ -43,7 +50,9 @@ def evaluate_candidate(annotations, candidate):
     # Looking for best guesses
     if annotations.best_guess_labels:
         for label in annotations.best_guess_labels:
-            if label.label.strip().lower().replace('-', ' ') in candidate.imdb_title.lower().replace('-', ' '):
+            parsed_label = label.label.strip().lower().replace('-', ' ')
+            if parsed_label in candidate.imdb_title.lower().replace('-', ' ') or \
+                    candidate.title.lower() in parsed_label:
                 matches.append(('best guess', label.label))
 
     return matches
