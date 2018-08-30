@@ -100,6 +100,10 @@ class Movie:
                 else:
                     substring += ' ' + word
                     append = True
+            elif re.match('[1-3][0-9]{3}', re.sub('[(),.\'"]', '', word)):  # Checking whether it is an year
+                entities.append(re.sub('[(),.\'"]', '', word))
+                append = False
+                substring = ''
             elif append:
                 entities.append(substring.strip())
                 append = False
