@@ -74,6 +74,7 @@ def _validate_movie_title_sapo(sapo_title):
            and 'Hollywood News' not in sapo_title \
            and 'Grandes Realizadores' not in sapo_title \
            and 'Zoom In' not in sapo_title \
+           and 'Universo Syfy' not in sapo_title \
            and 'Fecho de Emissão' not in sapo_title
 
 

@@ -9,6 +9,8 @@ import urllib.request, io
 import services.google_vision as im
 from configs.config import CONFIG
 
+ELECTED_CANDIDATE_SCORE = 5
+
 
 def _print_img(uri):
     """Printing image"""
@@ -62,31 +64,50 @@ if __name__ == '__main__':
             print('    Scored: {} *** {} matches: {}'.format(candidate.score, len(matches), matches))
 
         # Additional candidates to include in movie selection
+        has_additional_candidates = False
         if success_google_vision:
             additional_candidates = im.google_vision_candidates(annotations, [tuple[0] for tuple in candidates])
             if len(additional_candidates) > 0:
                 print('\n')
                 print('Additional candidates found')
+                has_additional_candidates = True
                 for additional_candidate in additional_candidates:
                     print(additional_candidate)
 
-        print('Chosen option: ')
-        option = sys.stdin.readline()  # reading option from stdin
-
-        try:  # Check whether the input is an int
-            option = int(option)
-        except ValueError:
-            if option[:2] == 'tt':  # Checking whether it is an IMDb ID
-                unresolved_movie.imdb_id = option
-                ms.complete_movie_with_omdb(unresolved_movie)
-                unresolved_movie.imdb_title = unresolved_movie.title + '(' + unresolved_movie.year + ')'
-                unresolved_movie.isresolved = True
-                ms.replace_movie(unresolved_movie)  # Replace old entry with updated one
-                ms.delete_candidates(unresolved_movie.sapo_id)  # Delete candidates
-            else:
-                raise Exception('Invalid option')
-        else:
-            elected = candidates[option - 1][0]
+        # If score difference between 1st and 2nd candidate is > 5, elect candidate
+        if len(candidates) > 0 and \
+                ((len(candidates) == 1 and candidates[0][0].score > ELECTED_CANDIDATE_SCORE) or
+                 (len(candidates) > 1 and candidates[0][0].score - candidates[1][0].score > ELECTED_CANDIDATE_SCORE)):
+            elected = candidates[0][0]
+            score_difference = elected.score if len(candidates) == 1 else elected.score - candidates[1][0].score
+            print('\n')
+            print('***')
+            print('Movie \'{}\' automatically elected with score of {} and difference of {}'
+                  .format(elected.imdb_title, elected.score, score_difference))
+            print('***')
             elected.isresolved = True
             ms.replace_movie(elected)  # Replace movie with elected one
             ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates
+
+        # Otherwise, manually election
+        else:
+            print('Chosen option: ')
+            option = sys.stdin.readline()  # reading option from stdin
+
+            try:  # Check whether the input is an int
+                option = int(option)
+            except ValueError:
+                if option[:2] == 'tt':  # Checking whether it is an IMDb ID
+                    unresolved_movie.imdb_id = option.replace('\n', '')
+                    ms.complete_movie_with_omdb(unresolved_movie)
+                    unresolved_movie.imdb_title = unresolved_movie.title + '(' + unresolved_movie.year + ')'
+                    unresolved_movie.isresolved = True
+                    ms.replace_movie(unresolved_movie)  # Replace old entry with updated one
+                    ms.delete_candidates(unresolved_movie.sapo_id)  # Delete candidates
+                else:
+                    raise Exception('Invalid option')
+            else:
+                elected = candidates[option - 1][0]
+                elected.isresolved = True
+                ms.replace_movie(elected)  # Replace movie with elected one
+                ms.delete_candidates(unresolved_movie.sapo_id)  # Deleting all previous candidates

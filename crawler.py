@@ -8,7 +8,7 @@ import json
 
 # Performing request to get daily EPG
 def request_daily_epg(channel):
-    start = datetime.datetime.now()
+    start = datetime.datetime.now() - datetime.timedelta(days=1)
     end = start + datetime.timedelta(days=1)
 
     today_start = start.strftime('%Y-%m-%d') + ' 00:00:00'

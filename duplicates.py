@@ -7,7 +7,7 @@ if __name__ == '__main__':
     movies = json.loads(dumps(db.movie.find({})))
     for movie in movies:
         movie = Movie(movie)
-        found = db.movie.find_one({'sapo_title': movie.sapo_title, 'sapo_description': movie.sapo_description, 'sapo_id': {'$ne': movie.sapo_id}})
+        found = db.movie.find_one({'sapo_description': movie.sapo_description, 'sapo_id': {'$ne': movie.sapo_id}})
         if found is not None:
             found = Movie(found)
             # db.schedule.update({'sapo_id': found.sapo_id}, {'$set': {'sapo_id': movie.sapo_id}})
