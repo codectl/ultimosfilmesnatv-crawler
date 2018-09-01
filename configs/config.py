@@ -1,5 +1,6 @@
 import configparser
 from pymongo import MongoClient
+import os
 
 
 class Properties:
@@ -10,7 +11,8 @@ class Properties:
 def load_properties():
     # Read configuration properties
     config = configparser.ConfigParser()
-    config.read('configs/properties.ini')
+    base_path = os.path.dirname(os.path.realpath(__file__))
+    config.read(os.path.join(base_path, 'properties.ini'))
 
     properties = Properties()
     properties.CHANNELS = config.get('general', 'channels')
