@@ -1,3 +1,4 @@
+import services.movie_service as ms
 from configs.config import db
 from models.movie import Movie
 from models.schedule import Schedule
@@ -35,3 +36,11 @@ if __name__ == '__main__':
             print(movie)
             # db.candidate.remove({'sapo_id': schedule.sapo_id})
             # db.schedule.remove({'sapo_id': schedule.sapo_id})
+
+    corrupted_movies = json.loads(dumps(db.movie.find({'imdb_title': '()'})))
+    for corrupted_movie in corrupted_movies:
+        candidate = Movie(corrupted_movie)
+        candidate.imdb_id = candidate.imdb_id.replace('\n', '')
+        ms.complete_movie_with_omdb(candidate)
+        candidate.imdb_title = candidate.title + '(' + candidate.year + ')'
+        ms.replace_movie(candidate)
