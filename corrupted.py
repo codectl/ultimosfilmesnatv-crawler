@@ -26,21 +26,21 @@ if __name__ == '__main__':
             db.candidate.remove({'sapo_id': schedule.sapo_id})
             db.schedule.remove({'sapo_id': schedule.sapo_id})
 
-    movies_json = json.loads(dumps(db.movies.find({})))
-    for movie_json in movies_json:
-        movie = Movie(movie_json)
-        found = db.movie.find_one({'imdb_id': movie.imdb_id, 'sapo_id': {'$ne': movie.sapo_id}})
-        if found is None:
-            print('duplicated movie')
-            print(found)
-            print(movie)
+    # movies_json = json.loads(dumps(db.movies.find({})))
+    # for movie_json in movies_json:
+    #     movie = Movie(movie_json)
+    #     found = db.movie.find_one({'imdb_id': movie.imdb_id, 'sapo_id': {'$ne': movie.sapo_id}})
+    #     if found is None:
+    #         print('duplicated movie')
+    #         print(found)
+    #         print(movie)
             # db.candidate.remove({'sapo_id': schedule.sapo_id})
             # db.schedule.remove({'sapo_id': schedule.sapo_id})
 
-    corrupted_movies = json.loads(dumps(db.movie.find({'imdb_title': '()'})))
-    for corrupted_movie in corrupted_movies:
-        candidate = Movie(corrupted_movie)
-        candidate.imdb_id = candidate.imdb_id.replace('\n', '')
-        ms.complete_movie_with_omdb(candidate)
-        candidate.imdb_title = candidate.title + '(' + candidate.year + ')'
-        ms.replace_movie(candidate)
+    # corrupted_movies = json.loads(dumps(db.movie.find({'imdb_title': '()'})))
+    # for corrupted_movie in corrupted_movies:
+    #     candidate = Movie(corrupted_movie)
+    #     candidate.imdb_id = candidate.imdb_id.replace('\n', '')
+    #     ms.complete_movie_with_omdb(candidate)
+    #     candidate.imdb_title = candidate.title + '(' + candidate.year + ')'
+    #     ms.replace_movie(candidate)
