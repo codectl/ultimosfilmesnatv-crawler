@@ -8,7 +8,7 @@ import json
 
 # Performing request to get daily EPG
 def request_daily_epg(channel):
-    start = datetime.datetime.now() - datetime.timedelta(days=1)
+    start = datetime.datetime.now()
     end = start + datetime.timedelta(days=1)
 
     today_start = start.strftime('%Y-%m-%d') + ' 00:00:00'
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         response = request_daily_epg(channel)
 
         # Parsing performed sapo request
-        movies, schedules = sapoparser.parse(response)
+        movies, schedules, updates = sapoparser.parse(response)
 
         # Persist each movie
         for movie in movies:
@@ -48,10 +48,14 @@ if __name__ == '__main__':
                 if not candidates:
                     print('No candidates found for movie {}'.format(movie.sapo_title))
                     movie.nocandidates = True
-                    ms.save_movie(movie)
                 else:
                     ms.save_candidates(candidates)
-                    ms.save_movie(movie)
+
+                ms.save_movie(movie) # Persist movie
+
+            # Updating modified entries
+            if any(update.sapo_id == movie.sapo_id for update in updates):
+                ms.replace_movie(movie)
 
         # Persist each schedule
         for schedule in schedules:

@@ -30,6 +30,7 @@ class Movie:
             self.rating_rotten_tomatoes = ''
             self.rating_metacritic = ''
             self.website = ''
+            self.aliases = []
             self.isresolved = False
             self.nocandidates = False
             self.score = 0

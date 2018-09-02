@@ -113,6 +113,11 @@ def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
     return db.movie.find_one({'sapo_title': sapo_title, 'sapo_description': sapo_description})
 
 
+def get_movie_alias(sapo_id):
+    """Gets a movie alias given an id"""
+    return db.movie.find_one({'aliases': {'$in': [sapo_id]}})
+
+
 def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
     """Check whether a schedule already exists in database"""
     return db.schedule.find({
