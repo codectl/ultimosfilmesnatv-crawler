@@ -16,6 +16,7 @@ def parse(response):
 
     movies = []
     schedules = []
+    updates = []
 
     for program in root \
             .find('sapo:GetChannelByDateIntervalResult', ns) \
@@ -29,18 +30,32 @@ def parse(response):
 
         if _validate_movie(sapo_title):
 
-            # Check if movie exists in db by name and description
-            mongo_result = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
+            # Check if movie is saved under other movie entry
+            movie_alias = ms.get_movie_alias(sapo_id)
 
-            # Check if movie is on the list of movies to add
-            existing_movie = _get_movie_from_list(movies, sapo_title, sapo_description)
+            # Check if movie exists in db by name and description
+            same_name_description_movie = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
+
+            # Movie has aliases
+            if movie_alias is not None:
+                movie = Movie(json.loads(dumps(movie_alias)))
+                sapo_id = movie.sapo_id
 
             # Combine movie if already exists one of the same
-            if mongo_result is not None:
-                movie = Movie(json.loads(dumps(mongo_result)))
+            elif same_name_description_movie is not None:
+                movie = Movie(json.loads(dumps(same_name_description_movie)))
+                movie.aliases.append(sapo_id)
+                updates.append(movie)
                 sapo_id = movie.sapo_id
-            elif existing_movie is not None:
-                sapo_id = existing_movie.sapo_id
+
+            # Movie already in the list of movies to be added
+            elif any(m.sapo_id == sapo_id for m in movies):
+                sapo_id = (next(m for m in movies if m.sapo_id == sapo_id)).sapo_id
+
+            # Getting aliases for movies not yet in persisted
+            elif any(sapo_title == m.sapo_title and sapo_description == m.sapo_description for m in movies):
+                movie = next(m for m in movies if sapo_title == m.sapo_title and sapo_description == m.sapo_description)
+                movie.aliases.append(sapo_id)
 
             # Otherwise add new one
             else:
@@ -60,7 +75,7 @@ def parse(response):
             schedule.sapo_end_datetime = program.find('sapo:Duration', ns).text
             schedules.append(schedule)
 
-    return movies, schedules
+    return movies, schedules, updates
 
 
 # Validating whether it is valid movie
