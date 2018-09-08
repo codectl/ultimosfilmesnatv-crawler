@@ -27,7 +27,9 @@ def get_candidates(movie):
                         'og:title' in metatag and \
                         '(TV Series' not in metatag['og:title'] and \
                         '(Video Game' not in metatag['og:title'] and \
-                        not _exists_candidate(candidates, metatag['og:title']):
+                        'Official Trailer' not in metatag['og:title'] and \
+                        'pageid' in metatag and not any(c.imdb_id == metatag['pageid'] for c in candidates):
+
                     candidate = Movie()
                     candidate.sapo_id = movie.sapo_id
                     candidate.sapo_title = movie.sapo_title
@@ -146,14 +148,6 @@ def get_all_unresolved_movies():
 def get_all_candidates(sapo_id):
     """Getting list of unresolved movies"""
     return db.candidate.find({'sapo_id': sapo_id})
-
-
-def _exists_candidate(candidates, name):
-    """Checking whether certain movie is already present in the candidates list"""
-    for candidate in candidates:
-        if candidate.imdb_title == name:
-            return True
-    return False
 
 
 def get_channel_movie(sapo_id):
