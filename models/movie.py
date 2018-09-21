@@ -80,6 +80,9 @@ class Movie:
         if self.director in self.sapo_description:  # Checking director
             matches.append(('description director', self.director))
 
+        if self.year in self.sapo_title: # Checking year in title
+            matches.append(('year', self.year))
+
         for entity in self._extract_entities_from_description():
             if entity.lower() in self.plot.lower():  # Checking entities
                 matches.append(('description entity', entity))
