@@ -69,8 +69,20 @@ class Movie:
         return list(set(
             map(lambda e: e.strip(), extracted_actors.split(',')) if extracted_actors else [] + self.actors.split(',')))
 
-    def get_description_sapo_matches(self):
-        """Checks whether sapo description contains useful information"""
+    def evaluate_candidate_title(self):
+        """Checks whether candidate title contains useful information"""
+        matches = []
+        if self.year in self.sapo_title:  # Checking year in title
+            matches.append(('year', self.year))
+
+        for word in self.imdb_title.split(' '):  # Check whether title has digits. Useful for volumes
+            if word.isdigit() and word in self.sapo_title:
+                matches.append(('saga', self.sapo_title))
+
+        return matches
+
+    def evaluate_candidate_description(self):
+        """Checks whether candidate description contains useful information"""
         matches = []
         actors = self.combine_all_actors()
         for actor in actors:
@@ -79,9 +91,6 @@ class Movie:
 
         if self.director in self.sapo_description:  # Checking director
             matches.append(('description director', self.director))
-
-        if self.year in self.sapo_title: # Checking year in title
-            matches.append(('year', self.year))
 
         for entity in self._extract_entities_from_description():
             if entity.lower() in self.plot.lower():  # Checking entities
@@ -122,6 +131,8 @@ class Movie:
                 score += 6
             elif rule[0] == 'imdb title':
                 score += 2
+            elif rule[0] == 'saga':
+                score += 3
             elif rule[0] == 'actors':
                 score += 4
             elif rule[0] == 'description':

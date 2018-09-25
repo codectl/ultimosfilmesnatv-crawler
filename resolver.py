@@ -49,7 +49,8 @@ if __name__ == '__main__':
         for candidate_json in candidates_json:
             candidate = Movie(candidate_json)  # Getting object from json
             rules = im.evaluate_candidate(annotations, candidate) if success_google_vision else []
-            rules += candidate.get_description_sapo_matches()
+            rules += candidate.evaluate_candidate_title()
+            rules += candidate.evaluate_candidate_description()
             candidate.set_score(rules, unresolved_movie)  # Setting score based on a set of rules/parameters
             candidates.append((candidate, rules))
 
