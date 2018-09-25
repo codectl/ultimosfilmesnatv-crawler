@@ -3,6 +3,7 @@ import urllib, urllib.request
 from configs.config import CONFIG, db
 from models.movie import Movie
 import uuid
+import re
 
 
 def get_candidates(movie):
@@ -112,7 +113,9 @@ def exists_movie_in_db_by_sapo_id(sapo_id):
 
 def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
     """Gets a movie in db given its name and description"""
-    return db.movie.find_one({'sapo_title': sapo_title, 'sapo_description': sapo_description})
+    return db.movie.find_one(
+        {'sapo_title': re.compile(sapo_title, re.IGNORECASE),
+         'sapo_description': sapo_description})
 
 
 def get_movie_alias(sapo_id):
