@@ -86,11 +86,11 @@ def _validate_movie(sapo_title):
 # Validating if it is a series
 def _validate_movie_title_sapo(sapo_title):
     return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
-           and 'Hollywood News' not in sapo_title \
-           and 'Grandes Realizadores' not in sapo_title \
-           and 'Zoom In' not in sapo_title \
-           and 'Universo Syfy' not in sapo_title \
-           and 'Fecho De Emissão' not in sapo_title
+           and 'Hollywood News'.lower() not in sapo_title.lower() \
+           and 'Grandes Realizadores'.lower() not in sapo_title.lower() \
+           and 'Zoom In'.lower() not in sapo_title.lower() \
+           and 'Universo Syfy'.lower() not in sapo_title.lower() \
+           and 'Fecho De Emissão'.lower() not in sapo_title.lower()
 
 
 # Get movie from list of movies to add if exists
