@@ -111,16 +111,19 @@ def exists_movie_in_db_by_sapo_id(sapo_id):
     return db.movie.find({'sapo_id': sapo_id}).count() != 0
 
 
-def get_movie_in_db_by_name_and_description(sapo_title, sapo_description):
-    """Gets a movie in db given its name and description"""
-    return db.movie.find_one(
-        {'sapo_title': re.compile(sapo_title, re.IGNORECASE),
-         'sapo_description': sapo_description})
+def get_movie_in_db_by_title(sapo_title):
+    """Gets a movie in db given its title"""
+    return db.movie.find_one({'sapo_title': re.compile(sapo_title, re.IGNORECASE)})
 
 
-def get_movie_alias(sapo_id):
+def get_movie_alias_by_id(sapo_id):
     """Gets a movie alias given an id"""
-    return db.movie.find_one({'aliases': {'$in': [sapo_id]}})
+    return db.movie.find_one({'alias_ids': {'$in': [sapo_id]}})
+
+
+def get_movie_alias_by_title(sapo_title):
+    """Gets a movie alias given a title"""
+    return db.movie.find({'alias_titles': {'$in': [sapo_title]}})
 
 
 def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):

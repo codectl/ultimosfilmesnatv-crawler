@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import xml.etree.ElementTree as ET
+from difflib import SequenceMatcher
 from bson.json_util import dumps
 import json
 import re
@@ -31,31 +32,30 @@ def parse(response):
         if _validate_movie(sapo_title):
 
             # Check if movie is saved under other movie entry
-            movie_alias = ms.get_movie_alias(sapo_id)
+            movie = _resolve_movie(sapo_id, sapo_title, sapo_description)
 
-            # Check if movie exists in db by name and description
-            same_name_description_movie = ms.get_movie_in_db_by_name_and_description(sapo_title, sapo_description)
-
-            # Movie has aliases
-            if movie_alias is not None:
-                movie = Movie(json.loads(dumps(movie_alias)))
+            # Movie was successfully resolved
+            if movie is not None:
                 sapo_id = movie.sapo_id
 
-            # Combine movie if already exists one of the same
-            elif same_name_description_movie is not None:
-                movie = Movie(json.loads(dumps(same_name_description_movie)))
-                movie.aliases.append(sapo_id)
-                updates.append(movie)
-                sapo_id = movie.sapo_id
+                # Adding id alias
+                if movie.sapo_id != sapo_id and sapo_id not in movie.alias_ids:
+                    movie.alias_ids.append(sapo_id)
+                    updates.append(movie)
+
+                # Adding title alias
+                if movie.sapo_title != sapo_title and sapo_title not in movie.alias_titles:
+                    movie.alias_titles.append(sapo_title)
+                    updates.append(movie)
 
             # Movie already in the list of movies to be added
             elif any(m.sapo_id == sapo_id for m in movies):
-                sapo_id = (next(m for m in movies if m.sapo_id == sapo_id)).sapo_id
+                pass
 
-            # Getting aliases for movies not yet in persisted
-            elif any(sapo_title == m.sapo_title and sapo_description == m.sapo_description for m in movies):
-                movie = next(m for m in movies if sapo_title == m.sapo_title and sapo_description == m.sapo_description)
-                movie.aliases.append(sapo_id)
+            # Getting alias_ids for movies not yet in persisted
+            elif any(sapo_title.lower() == m.sapo_title.lower() for m in movies):
+                movie = next(m for m in movies if sapo_title.lower() == m.sapo_title.lower())
+                movie.alias_ids.append(sapo_id)
 
             # Otherwise add new one
             else:
@@ -78,13 +78,13 @@ def parse(response):
     return movies, schedules, updates
 
 
-# Validating whether it is valid movie
 def _validate_movie(sapo_title):
+    """Validating whether it is valid movie"""
     return _validate_movie_title_sapo(sapo_title)
 
 
-# Validating if it is a series
 def _validate_movie_title_sapo(sapo_title):
+    """Validating if it is a series"""
     return re.match(r'(.*) Ep\.\s\d+', sapo_title, flags=0) is None \
            and 'Hollywood News'.lower() not in sapo_title.lower() \
            and 'Grandes Realizadores'.lower() not in sapo_title.lower() \
@@ -93,9 +93,30 @@ def _validate_movie_title_sapo(sapo_title):
            and 'Fecho De Emissão'.lower() not in sapo_title.lower()
 
 
-# Get movie from list of movies to add if exists
 def _get_movie_from_list(movies, sapo_title, sapo_description):
+    """Get movie from list of movies to add if exists"""
     for m in movies:
         if m.sapo_title == sapo_title and m.sapo_description == sapo_description:
             return m
     return None
+
+
+def _resolve_movie(sapo_id, sapo_title, sapo_description):
+    """Resolve movie based on id, title and description"""
+    match = None  # Returned matched movie
+    id_alias = Movie.from_pymongo(ms.get_movie_alias_by_id(sapo_id))  # Movie alias based on id
+    if id_alias is None:
+        same_title = Movie.from_pymongo(ms.get_movie_in_db_by_title(sapo_title))  # Search by title
+        if same_title is None:
+            title_alias = Movie.from_pymongo(ms.get_movie_alias_by_title(sapo_title))  # Movie alias based on title
+            if title_alias is not None:
+                if SequenceMatcher(None, title_alias.sapo_description, sapo_description).ratio() > 0.5:
+                    match = title_alias  # Same title as other movie
+        else:
+            if SequenceMatcher(None, same_title.sapo_description, sapo_description).ratio() > 0.5:
+                match = same_title  # Same title and similar description movie
+
+    else:
+        match = id_alias  # Same id as other movie
+
+    return match

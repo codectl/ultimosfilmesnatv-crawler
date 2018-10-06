@@ -2,7 +2,7 @@ import services.movie_service as ms
 from models.movie import Movie
 from configs.config import db
 from bson.json_util import dumps
-import argparse
+from difflib import SequenceMatcher
 import json
 import sys
 
@@ -30,6 +30,8 @@ if __name__ == '__main__':
                 print('    Sapo title: {}. IMDb title: {}'.format(found.sapo_title, found.imdb_title))
                 print('    Sapo Description: {}'.format(found.sapo_description))
                 print('    IMDb Description: {}'.format(found.imdb_description))
+                print('Description similarity ratio: {}'.format(
+                    SequenceMatcher(None, movie.sapo_description, found.sapo_description).ratio()))
 
                 print('\n')
                 print('* Which one to keep? *')
@@ -47,5 +49,7 @@ if __name__ == '__main__':
 
                 db.schedule.update({'sapo_id': replace.sapo_id}, {'$set': {'sapo_id': keep.sapo_id}})
                 db.candidate.update({'sapo_id': replace.sapo_id}, {'$set': {'sapo_id': keep.sapo_id}})
-                db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'aliases': replace.sapo_id }})
+                db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_ids': replace.sapo_id}})
+                if keep.sapo_title != replace.sapo_title:
+                    db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_titles': replace.sapo_title}})
                 db.movie.remove({'sapo_id': replace.sapo_id})

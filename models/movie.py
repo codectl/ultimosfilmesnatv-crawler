@@ -1,5 +1,6 @@
 import json
 import re
+from bson.json_util import dumps
 
 
 class Movie:
@@ -30,13 +31,18 @@ class Movie:
             self.rating_rotten_tomatoes = ''
             self.rating_metacritic = ''
             self.website = ''
-            self.aliases = []
+            self.alias_ids = []
+            self.alias_titles = []
             self.isresolved = False
             self.nocandidates = False
             self.score = 0
         else:
             for key, value in json_obj.items():
                 self.__dict__[key] = value
+
+    @classmethod
+    def from_pymongo(cls, obj):
+        return Movie(json.loads(dumps(obj))) if obj is not None else None
 
     def __str__(self):
         return \
@@ -105,7 +111,7 @@ class Movie:
         append = False
         substring = ''
         for word in words:
-            if word[0].isupper() and (len(word) > 2 or (len(word) <= 2 and append)):
+            if word and word[0].isupper() and (len(word) > 2 or (len(word) <= 2 and append)):
                 if any(c == word[-1] for c in '(),.\'"'):
                     entities.append(substring.strip() + ' ' + word[:-1])
                     append = False
