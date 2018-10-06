@@ -106,17 +106,14 @@ def _resolve_movie(sapo_id, sapo_title, sapo_description):
     match = None  # Returned matched movie
     id_alias = Movie.from_pymongo(ms.get_movie_alias_by_id(sapo_id))  # Movie alias based on id
     if id_alias is None:
-        same_title = Movie.from_pymongo(ms.get_movie_in_db_by_title(sapo_title))  # Search by title
-        if same_title is None:
-            title_alias = Movie.from_pymongo(ms.get_movie_alias_by_title(sapo_title))  # Movie alias based on title
-            if title_alias is not None:
-                if SequenceMatcher(None, title_alias.sapo_description, sapo_description).ratio() > 0.5:
-                    match = title_alias  # Same title as other movie
-        else:
-            if SequenceMatcher(None, same_title.sapo_description, sapo_description).ratio() > 0.5:
-                match = same_title  # Same title and similar description movie
-
+        same_titles = Movie.from_pymongo(ms.get_movie_in_db_by_title(sapo_title))  # Search by title
+        title_aliases = Movie.from_pymongo(ms.get_movie_alias_by_title(sapo_title))  # Search by title aliases
+        merged_candidates = same_titles + list(filter(lambda e: e.sapo_id not in [x.sapo_id for x in same_titles],
+                                                      title_aliases))
+        for merged_candidate in merged_candidates:
+            if SequenceMatcher(None, merged_candidate.sapo_description, sapo_description).ratio() > 0.5:
+                match = merged_candidate  # Match found based on title
     else:
-        match = id_alias  # Same id as other movie
+        match = id_alias  # Match found based on id
 
     return match

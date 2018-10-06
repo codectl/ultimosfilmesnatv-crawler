@@ -6,7 +6,7 @@ from bson.json_util import dumps
 class Movie:
 
     def __init__(self, json_obj=None):
-        if json_obj == None:
+        if json_obj is None:
             self.sapo_id = ''
             self.sapo_title = ''
             self.sapo_description = ''
@@ -42,7 +42,12 @@ class Movie:
 
     @classmethod
     def from_pymongo(cls, obj):
-        return Movie(json.loads(dumps(obj))) if obj is not None else None
+        if obj is not None:
+            serialized = json.loads(dumps(obj))
+            if isinstance(serialized, list):
+                return list(map(lambda e: Movie(e), serialized))
+            return Movie(serialized)
+        return None
 
     def __str__(self):
         return \

@@ -113,7 +113,7 @@ def exists_movie_in_db_by_sapo_id(sapo_id):
 
 def get_movie_in_db_by_title(sapo_title):
     """Gets a movie in db given its title"""
-    return db.movie.find_one({'sapo_title': re.compile(sapo_title, re.IGNORECASE)})
+    return db.movie.find({'sapo_title': re.compile(sapo_title.replace('(', '\(').replace(')', '\)'), re.IGNORECASE)})
 
 
 def get_movie_alias_by_id(sapo_id):
