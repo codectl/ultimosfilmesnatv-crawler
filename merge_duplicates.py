@@ -5,15 +5,15 @@ from bson.json_util import dumps
 from difflib import SequenceMatcher
 import json
 import sys
+import uuid
 
 if __name__ == '__main__':
-    movies = json.loads(dumps(db.movie.find({})))
+    movies = Movie.from_pymongo(db.movie.find({}))
     repeated = []
     for movie in movies:
-        movie = Movie(movie)
-        found = db.movie.find_one({'imdb_title': movie.imdb_title, 'sapo_id': {'$ne': movie.sapo_id}})
+        found = Movie.from_pymongo(
+            db.movie.find_one({'imdb_title': movie.imdb_title, 'sapo_id': {'$ne': movie.sapo_id}}))
         if found is not None:
-            found = Movie(found)
             if found.sapo_id not in repeated:
                 repeated.append(movie.sapo_id)
                 repeated.append(found.sapo_id)
@@ -52,4 +52,8 @@ if __name__ == '__main__':
                 db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_ids': replace.sapo_id}})
                 if keep.sapo_title != replace.sapo_title:
                     db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_titles': replace.sapo_title}})
+                if SequenceMatcher(None, keep.sapo_description, replace.sapo_description).ratio() <= 0.5:
+                    db.movie_aliases.insert(
+                        {'sapo_title': replace.sapo_title, 'movie': replace.to_json(), 'alias_of': keep.sapo_id})
+
                 db.movie.remove({'sapo_id': replace.sapo_id})
