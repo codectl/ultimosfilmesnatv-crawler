@@ -47,7 +47,7 @@ if __name__ == '__main__':
                 else:
                     raise Exception('Invalid option')
 
-                db.schedule.update({'sapo_id': replace.sapo_id}, {'$set': {'sapo_id': keep.sapo_id}})
+                db.schedule.update_many({'sapo_id': replace.sapo_id}, {'$set': {'sapo_id': keep.sapo_id}})
                 db.candidate.update({'sapo_id': replace.sapo_id}, {'$set': {'sapo_id': keep.sapo_id}})
                 db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_ids': replace.sapo_id}})
                 if keep.sapo_title != replace.sapo_title:
