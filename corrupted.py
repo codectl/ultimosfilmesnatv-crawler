@@ -13,8 +13,8 @@ if __name__ == '__main__':
         if found is None:
             print('candidate')
             print(candidate)
-            # db.candidate.remove({'sapo_id': candidate.sapo_id})
-            # db.schedule.remove({'sapo_id': candidate.sapo_id})
+            db.candidate.remove({'sapo_id': candidate.sapo_id})
+            db.schedule.remove({'sapo_id': candidate.sapo_id})
 
     schedules_json = json.loads(dumps(db.schedule.find({})))
     for schedule_json in schedules_json:
@@ -23,8 +23,8 @@ if __name__ == '__main__':
         if found is None:
             print('schedule')
             print(schedule)
-            # db.candidate.remove({'sapo_id': schedule.sapo_id})
-            # db.schedule.remove({'sapo_id': schedule.sapo_id})
+            db.candidate.remove({'sapo_id': schedule.sapo_id})
+            db.schedule.remove({'sapo_id': schedule.sapo_id})
 
     # movies_json = json.loads(dumps(db.movies.find({})))
     # for movie_json in movies_json:
