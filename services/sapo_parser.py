@@ -72,7 +72,7 @@ def parse(response):
                 .find('sapo:Sigla', ns).text
             schedule.sapo_start_datetime = program.find('sapo:StartTime', ns).text
             schedule.sapo_end_datetime = program.find('sapo:EndTime', ns).text
-            schedule.duration = program.find('sapo:Duration', ns).text
+            schedule.sapo_duration = program.find('sapo:Duration', ns).text
             schedules.append(schedule)
 
     return movies, schedules, updates
