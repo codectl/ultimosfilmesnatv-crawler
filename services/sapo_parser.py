@@ -103,7 +103,6 @@ def _get_movie_from_list(movies, sapo_title, sapo_description):
 
 def _resolve_movie(sapo_id, sapo_title, sapo_description):
     """Resolve movie based on id, title and description"""
-    match = None  # Returned matched movie
     id_alias = Movie.from_pymongo(ms.get_movie_alias_by_id(sapo_id))  # Movie alias based on id
     if id_alias is None:
         same_titles = Movie.from_pymongo(ms.get_movie_in_db_by_title(sapo_title))  # Search by title
@@ -112,16 +111,14 @@ def _resolve_movie(sapo_id, sapo_title, sapo_description):
                                                      title_aliases))
         for alias_candidate in alias_candidates:
             if SequenceMatcher(None, alias_candidate.sapo_description, sapo_description).ratio() > 0.5:
-                match = alias_candidate  # Match found based on title
-                break
+                return alias_candidate  # Match found based on title
 
             for alias_of in ms.get_movie_aliasof_by_title(alias_candidate.sapo_title):
-                if SequenceMatcher(None, alias_of['sapo_description'], alias_candidate.sapo_description).ratio() > 0.5:
-                    match = Movie.from_pymongo(
+                if SequenceMatcher(None, alias_of['sapo_description'], sapo_description).ratio() > 0.5:
+                    return Movie.from_pymongo(
                         ms.get_movie_in_db_by_id(alias_of['alias_of']))  # Match found based on alias
-                    break
 
     else:
-        match = id_alias  # Match found based on id
+        return id_alias  # Match found based on id
 
-    return match
+    return None

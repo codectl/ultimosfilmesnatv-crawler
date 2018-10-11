@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 else:
                     ms.save_candidates(candidates)
 
-                ms.save_movie(movie) # Persist movie
+                ms.save_movie(movie)  # Persist movie
 
             # Updating modified entries
             if any(update.sapo_id == movie.sapo_id for update in updates):
