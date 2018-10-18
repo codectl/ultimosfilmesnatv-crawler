@@ -110,13 +110,14 @@ def _resolve_movie(sapo_id, sapo_title, sapo_description):
         alias_candidates = same_titles + list(filter(lambda e: e.sapo_id not in [x.sapo_id for x in same_titles],
                                                      title_aliases))
         for alias_candidate in alias_candidates:
+
             if SequenceMatcher(None, alias_candidate.sapo_description, sapo_description).ratio() > 0.5:
                 return alias_candidate  # Match found based on title
 
-            for alias_of in ms.get_movie_aliasof_by_title(alias_candidate.sapo_title):
-                if SequenceMatcher(None, alias_of['sapo_description'], sapo_description).ratio() > 0.5:
-                    return Movie.from_pymongo(
-                        ms.get_movie_in_db_by_id(alias_of['alias_of']))  # Match found based on alias
+            for alias_of in ms.get_alias_movie_by_aliasof(alias_candidate.sapo_id):
+                if alias_of['sapo_title'] in alias_candidate.alias_titles and \
+                        SequenceMatcher(None, alias_of['sapo_description'], sapo_description).ratio() > 0.5:
+                    return alias_candidate  # Match found based on alias
 
     else:
         return id_alias  # Match found based on id

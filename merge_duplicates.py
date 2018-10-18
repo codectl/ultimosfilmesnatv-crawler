@@ -52,6 +52,7 @@ if __name__ == '__main__':
                 db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_ids': replace.sapo_id}})
                 if keep.sapo_title != replace.sapo_title:
                     db.movie.update({'sapo_id': keep.sapo_id}, {'$push': {'alias_titles': replace.sapo_title}})
+                db.movie_aliases.update_many({'alias_of': replace.sapo_id}, {'$set': {'alias_of': keep.sapo_id}})
                 if SequenceMatcher(None, keep.sapo_description, replace.sapo_description).ratio() <= 0.5:
                     db.movie_aliases.insert(
                         {'sapo_title': replace.sapo_title,

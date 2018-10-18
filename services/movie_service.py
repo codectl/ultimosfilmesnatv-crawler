@@ -129,9 +129,9 @@ def get_movie_alias_by_title(sapo_title):
     return db.movie.find({'alias_titles': {'$in': [sapo_title]}})
 
 
-def get_movie_aliasof_by_title(sapo_title):
-    """Gets the alias of movie given its alias title"""
-    return db.movie_aliases.find({'sapo_title': sapo_title})
+def get_alias_movie_by_aliasof(sapo_id):
+    """Gets the alias of movie given its alias id"""
+    return db.movie_aliases.find({'alias_of': sapo_id})
 
 
 def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
