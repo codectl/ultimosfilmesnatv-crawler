@@ -115,8 +115,8 @@ def _resolve_movie(sapo_id, sapo_title, sapo_description):
                 return alias_candidate  # Match found based on title
 
             for alias_of in ms.get_alias_movie_by_aliasof(alias_candidate.sapo_id):
-                if alias_of['sapo_title'] in alias_candidate.alias_titles and \
-                        SequenceMatcher(None, alias_of['sapo_description'], sapo_description).ratio() > 0.5:
+                if (alias_of['sapo_title'] == sapo_title or alias_of['sapo_title'] in alias_candidate.alias_titles) \
+                        and SequenceMatcher(None, alias_of['sapo_description'], sapo_description).ratio() > 0.5:
                     return alias_candidate  # Match found based on alias
 
     else:
