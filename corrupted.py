@@ -42,5 +42,5 @@ if __name__ == '__main__':
     #     candidate = Movie(corrupted_movie)
     #     candidate.imdb_id = candidate.imdb_id.replace('\n', '')
     #     ms.complete_movie_with_omdb(candidate)
-    #     candidate.imdb_title = candidate.title + '(' + candidate.year + ')'
+    #     candidate.imdb_title = candidate.title + ' (' + candidate.year + ')'
     #     ms.replace_movie(candidate)

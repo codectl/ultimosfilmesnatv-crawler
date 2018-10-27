@@ -16,7 +16,7 @@ if __name__ == '__main__':
         movie = Movie(ms.get_movie_in_db_by_id(args.sapo_id))
         movie.imdb_id = args.imdb_id
         ms.complete_movie_with_omdb(movie)  # Complete movie with IMDB information
-        movie.imdb_title = movie.title + '(' + movie.year + ')'
+        movie.imdb_title = movie.title + ' (' + movie.year + ')'
         movie.isresolved = True
         ms.replace_movie(movie)
         ms.delete_candidates(movie.sapo_id)  # Delete remaining candidates

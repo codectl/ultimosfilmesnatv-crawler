@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 if option[:2] == 'tt':  # Checking whether it is an IMDb ID
                     unresolved_movie.imdb_id = option.replace('\n', '')
                     ms.complete_movie_with_omdb(unresolved_movie)
-                    unresolved_movie.imdb_title = unresolved_movie.title + '(' + unresolved_movie.year + ')'
+                    unresolved_movie.imdb_title = unresolved_movie.title + ' (' + unresolved_movie.year + ')'
                     unresolved_movie.isresolved = True
                     ms.replace_movie(unresolved_movie)  # Replace old entry with updated one
                     ms.delete_candidates(unresolved_movie.sapo_id)  # Delete candidates
