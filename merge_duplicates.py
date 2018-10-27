@@ -12,7 +12,7 @@ if __name__ == '__main__':
     repeated = []
     for movie in movies:
         found = Movie.from_pymongo(
-            db.movie.find_one({'imdb_title': movie.imdb_title, 'sapo_id': {'$ne': movie.sapo_id}}))
+            db.movie.find_one({'imdb_id': movie.imdb_id, 'sapo_id': {'$ne': movie.sapo_id}}))
         if found is not None:
             if found.sapo_id not in repeated:
                 repeated.append(movie.sapo_id)
