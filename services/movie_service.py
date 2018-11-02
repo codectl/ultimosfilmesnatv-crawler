@@ -2,7 +2,6 @@ import json
 import urllib, urllib.request
 from configs.config import CONFIG, db
 from models.movie import Movie
-import uuid
 import re
 
 
@@ -91,13 +90,13 @@ def get_movie_in_db_by_id(sapo_id):
 def save_movie(movie):
     """Save movie into database"""
     movie_json = json.loads(movie.to_json())
-    movie_json['_id'] = uuid.uuid1()
     db.movie.insert(movie_json)
 
 
 def replace_movie(movie):
     """Replacing movie entry with the new one"""
     db.movie.delete_one({'sapo_id': movie.sapo_id})
+    delattr(movie, '_id')
     save_movie(movie)
 
 
