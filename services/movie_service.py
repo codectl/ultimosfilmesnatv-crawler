@@ -91,7 +91,6 @@ def get_movie_in_db_by_id(sapo_id):
 def save_movie(movie):
     """Save movie into database"""
     movie_json = json.loads(movie.to_json())
-    movie_json['_id'] = uuid.uuid1()
     db.movie.insert(movie_json)
 
 
