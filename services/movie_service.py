@@ -96,7 +96,7 @@ def save_movie(movie):
 def replace_movie(movie):
     """Replacing movie entry with the new one"""
     db.movie.delete_one({'sapo_id': movie.sapo_id})
-    delattr(movie, '_id')
+    if hasattr(movie, '_id'): delattr(movie, '_id')
     save_movie(movie)
 
 
