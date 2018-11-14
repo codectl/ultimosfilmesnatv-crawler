@@ -1,4 +1,5 @@
 import json
+from bson import json_util
 
 
 class Schedule:
@@ -19,8 +20,8 @@ class Schedule:
             '\n' + \
             '### ' + self.sapo_id + ' ###\n' + \
             'Sapo channel: ' + self.sapo_channel + '\n' + \
-            'Sapo start datetime: ' + self.sapo_start_datetime + '\n' + \
-            'Sapo start endtime: ' + self.sapo_end_datetime + '\n' + \
+            'Sapo start datetime: ' + str(self.sapo_start_datetime) + '\n' + \
+            'Sapo start endtime: ' + str(self.sapo_end_datetime) + '\n' + \
             'Sapo duration: ' + self.sapo_duration + '\n'
 
     def to_json(self):

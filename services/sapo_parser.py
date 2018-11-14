@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import xml.etree.ElementTree as ET
 from difflib import SequenceMatcher
-from bson.json_util import dumps
-import json
 import re
+import datetime
 import services.movie_service as ms
 from models.movie import Movie
 from models.schedule import Schedule
@@ -70,8 +69,10 @@ def parse(response):
             schedule.sapo_channel = root \
                 .find('sapo:GetChannelByDateIntervalResult', ns) \
                 .find('sapo:Sigla', ns).text
-            schedule.sapo_start_datetime = program.find('sapo:StartTime', ns).text
-            schedule.sapo_end_datetime = program.find('sapo:EndTime', ns).text
+            schedule.sapo_start_datetime = datetime.datetime.strptime(
+                program.find('sapo:StartTime', ns).text, '%Y-%m-%d %H:%M:%S')
+            schedule.sapo_end_datetime = datetime.datetime.strptime(
+                program.find('sapo:EndTime', ns).text, '%Y-%m-%d %H:%M:%S')
             schedule.sapo_duration = program.find('sapo:Duration', ns).text
             schedules.append(schedule)
 
