@@ -102,7 +102,7 @@ def replace_movie(movie):
 
 def save_schedule(schedule):
     """Save schedule into database"""
-    db.schedule.insert(json.loads(schedule.to_json()))
+    db.schedule.insert(schedule.to_dict())
 
 
 def exists_movie_in_db_by_sapo_id(sapo_id):
