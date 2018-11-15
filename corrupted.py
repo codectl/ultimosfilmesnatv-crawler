@@ -17,38 +17,50 @@ if __name__ == '__main__':
     #         db.candidate.remove({'sapo_id': candidate.sapo_id})
     #         db.schedule.remove({'sapo_id': candidate.sapo_id})
 
-    schedules_json = json.loads(json_util.dumps(db.schedule.find({})), object_hook=json_util.object_hook)
-    for schedule_json in schedules_json:
-        schedule = Schedule(schedule_json)
+    # schedules_json = json.loads(json_util.dumps(db.schedule.find({})), object_hook=json_util.object_hook)
+    # for schedule_json in schedules_json:
+    #     schedule = Schedule(schedule_json)
+    #
+    #     if isinstance(schedule.sapo_start_datetime, str):
+    #
+    #         sapo_start_datetime = datetime.datetime.strptime(schedule.sapo_start_datetime, '%Y-%m-%d %H:%M:%S')
+    #
+    #         try:
+    #             sapo_duration = int(schedule.sapo_end_datetime)
+    #             sapo_end_datetime = sapo_start_datetime + datetime.timedelta(seconds=sapo_duration)
+    #             sapo_duration = str(sapo_duration)
+    #         except:
+    #             sapo_end_datetime = datetime.datetime.strptime(schedule.sapo_end_datetime, '%Y-%m-%d %H:%M:%S')
+    #
+    #         if 'duration' in schedule_json:
+    #             sapo_duration = schedule_json['duration']
+    #
+    #         if not sapo_duration:
+    #             raise Exception('Invalid option')
+    #         else:
+    #             if 'duration' in schedule_json:
+    #                 db.schedule.update({'_id': schedule._id}, {'$unset': {'duration': ""}})
+    #             # print(sapo_start_datetime)
+    #             # print(sapo_end_datetime)
+    #             # print(sapo_duration)
+    #             db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_start_datetime': sapo_start_datetime}})
+    #             db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_end_datetime': sapo_end_datetime}})
+    #             db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_duration': sapo_duration}})
 
-        if isinstance(schedule.sapo_start_datetime, str):
+    schedule = Schedule()
+    schedule.sapo_id = '123'
+    schedule.sapo_channel = 'ABC'
+    schedule.sapo_start_datetime = datetime.datetime.now()
+    schedule.sapo_end_datetime = datetime.datetime.now()
+    schedule.sapo_duration = '12345'
 
-            sapo_start_datetime = datetime.datetime.strptime(schedule.sapo_start_datetime, '%Y-%m-%d %H:%M:%S')
+    serialized = json_util.loads(json_util.dumps(schedule.__dict__))
+    print(serialized)
+    # db.schedule.insert(serialized)
+    s = Schedule(json.loads(json_util.dumps(db.schedule.find_one({'sapo_id': schedule.sapo_id})), object_hook=json_util.object_hook))
+    print(ms.exists_schedule_in_db(s.sapo_id, s.sapo_channel, s.sapo_start_datetime))
 
-            try:
-                sapo_duration = int(schedule.sapo_end_datetime)
-                sapo_end_datetime = sapo_start_datetime + datetime.timedelta(seconds=sapo_duration)
-                sapo_duration = str(sapo_duration)
-            except:
-                sapo_end_datetime = datetime.datetime.strptime(schedule.sapo_end_datetime, '%Y-%m-%d %H:%M:%S')
-
-            if 'duration' in schedule_json:
-                sapo_duration = schedule_json['duration']
-
-            if not sapo_duration:
-                raise Exception('Invalid option')
-            else:
-                if 'duration' in schedule_json:
-                    db.schedule.update({'_id': schedule._id}, {'$unset': {'duration': ""}})
-                # print(sapo_start_datetime)
-                # print(sapo_end_datetime)
-                # print(sapo_duration)
-                db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_start_datetime': sapo_start_datetime}})
-                db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_end_datetime': sapo_end_datetime}})
-                db.schedule.update({'_id': schedule._id}, {'$set': {'sapo_duration': sapo_duration}})
-
-
-        # found = db.movie.find_one({'sapo_id': schedule.sapo_id})
+# found = db.movie.find_one({'sapo_id': schedule.sapo_id})
         # if found is None:
         #     print('schedule')
         #     print(schedule)
