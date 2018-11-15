@@ -1,4 +1,4 @@
-import json
+from bson import json_util
 
 
 class Schedule:
@@ -23,5 +23,5 @@ class Schedule:
             'Sapo start endtime: ' + str(self.sapo_end_datetime) + '\n' + \
             'Sapo duration: ' + self.sapo_duration + '\n'
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def to_dict(self):
+        return json_util.loads(json_util.dumps(self.__dict__))
