@@ -1,6 +1,6 @@
 import json
 import re
-from bson.json_util import dumps
+from bson import json_util
 
 
 class Movie:
@@ -43,7 +43,7 @@ class Movie:
     @classmethod
     def from_pymongo(cls, obj):
         if obj is not None:
-            serialized = json.loads(dumps(obj))
+            serialized = json_util.loads(json_util.dumps(obj))
             if isinstance(serialized, list):
                 return list(map(lambda e: Movie(e), serialized))
             return Movie(serialized)
@@ -166,5 +166,5 @@ class Movie:
 
         self.score = score
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def to_dict(self):
+        return json_util.loads(json_util.dumps(self.__dict__))

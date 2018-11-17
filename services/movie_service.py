@@ -89,8 +89,7 @@ def get_movie_in_db_by_id(sapo_id):
 
 def save_movie(movie):
     """Save movie into database"""
-    movie_json = json.loads(movie.to_json())
-    db.movie.insert(movie_json)
+    db.movie.insert(movie.to_dict())
 
 
 def replace_movie(movie):
@@ -145,7 +144,7 @@ def exists_schedule_in_db(sapo_id, sapo_channel, sapo_start_datetime):
 def save_candidates(candidates):
     """Add movie to the unresolved movies in the database"""
     for candidate in candidates:
-        db.candidate.insert(json.loads(candidate.to_json()))  # Store unresolved entry in database
+        db.candidate.insert(candidate.to_dict())  # Store unresolved entry in database
 
 
 def delete_candidates(sapo_id):
