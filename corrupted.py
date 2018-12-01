@@ -60,12 +60,12 @@ if __name__ == '__main__':
     s = Schedule(json.loads(json_util.dumps(db.schedule.find_one({'sapo_id': schedule.sapo_id})), object_hook=json_util.object_hook))
     print(ms.exists_schedule_in_db(s.sapo_id, s.sapo_channel, s.sapo_start_datetime))
 
-# found = db.movie.find_one({'sapo_id': schedule.sapo_id})
-        # if found is None:
-        #     print('schedule')
-        #     print(schedule)
-        # db.candidate.remove({'sapo_id': schedule.sapo_id})
-        # db.schedule.remove({'sapo_id': schedule.sapo_id})
+    # found = db.movie.find_one({'sapo_id': schedule.sapo_id})
+    #     if found is None:
+    #         print('schedule')
+    #         print(schedule)
+    #     db.candidate.remove({'sapo_id': schedule.sapo_id})
+    #     db.schedule.remove({'sapo_id': schedule.sapo_id})
 
     # movies_json = json.loads(dumps(db.movies.find({})))
     # for movie_json in movies_json:
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     #         print('duplicated movie')
     #         print(found)
     #         print(movie)
-            # db.candidate.remove({'sapo_id': schedule.sapo_id})
-            # db.schedule.remove({'sapo_id': schedule.sapo_id})
+    #         db.candidate.remove({'sapo_id': schedule.sapo_id})
+    #         db.schedule.remove({'sapo_id': schedule.sapo_id})
 
     # corrupted_movies = json.loads(dumps(db.movie.find({'imdb_title': '()'})))
     # for corrupted_movie in corrupted_movies:
